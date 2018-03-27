@@ -5,7 +5,7 @@ module Bot::DiscordCommands
         event.channel.send_embed do |embed|
           Dir["src/modules/commands/**"].each do |base|
             commandarr = Dir[base+ '/*'].map { |prepend| "#{event.bot.prefix}#{prepend}" }
-            embed.add_field(name: base, value: commandarr.join("\n").gsub(base, ''))
+            embed.add_field(name: base, value: commandarr.join("\n").gsub(base, '').gsub('/', '').gsub('.rb', ''))
           end
           embed.title = '**Imgbot (click me to invite me to your server!)**'
           embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: event.bot.profile.avatar_url)
