@@ -1,5 +1,5 @@
 module Bot::DiscordCommands
-  module Eval
+  module Owner
     extend Discordrb::Commands::CommandContainer
     command(:eval, help_available: false) do |event, *code|
       #make this read from a list of owners xd

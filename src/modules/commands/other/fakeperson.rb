@@ -1,5 +1,5 @@
 module Bot::DiscordCommands
-  module General
+  module Other
     extend Discordrb::Commands::CommandContainer
     command :fakeperson do |event|
       event.channel.send_embed do |embed|
