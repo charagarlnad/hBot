@@ -5,7 +5,7 @@ module Bot::DiscordCommands
         if event.user.id == 123927345307451392
           channel = event.message.channel.id
           arch = event.bot.channel(channel).history(100, event.message.id) # amount, latest message in channel
-          file = File.open("{event.message.channel.name}.txt", 'a+')
+          file = File.open("#{event.message.channel.name}.txt", 'a+')
           arch.each { |word| file.write("#{word.author.name}\##{word.author.discriminator}\n#{word.content}\n#{word.timestamp}\n") }
           x = arch.last.id
       
