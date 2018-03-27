@@ -4,7 +4,7 @@ module Bot::DiscordCommands
       command :help2 do |event|
         event.channel.send_embed do |embed|
           Dir["src/modules/commands/**"].each do |base|
-            commandarr = Dir[base].map { |prepend| "#{event.bot.prefix}#{prepend}" }
+            commandarr = Dir[base+ '/*'].map { |prepend| "#{event.bot.prefix}#{prepend}" }
             embed.add_field(name: base, value: commandarr.join("\n").gsub(base, ''))
           end
           embed.title = '**Imgbot (click me to invite me to your server!)**'
