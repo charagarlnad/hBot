@@ -3,6 +3,7 @@ module Bot::DiscordCommands
       extend Discordrb::Commands::CommandContainer
       command(:archive) do |event|
         if event.user.id == 123927345307451392
+          event.respond "Ok, archiving."
           channel = event.message.channel.id
           arch = event.bot.channel(channel).history(100, event.message.id) # amount, latest message in channel
           file = File.open("#{event.message.channel.name}.txt", 'a+')
@@ -15,6 +16,7 @@ module Bot::DiscordCommands
             arch.each { |word| file.write("#{word.author.name}\##{word.author.discriminator}\n#{word.content}\n#{word.timestamp}\n") }
           end
           file.close
+          event.respond "Archiving done, output file: #{event.message.channel.name}.txt"
         end
       end
     end

@@ -42,6 +42,7 @@ Development Server: https://discord.gg/bvhbNVB"
     ", inline: true)
         embed.add_field(name: "Bot Owner", value: "
 #{event.bot.prefix}eval
+#{event.bot.prefix}archive
     ", inline: true)
         embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: event.bot.profile.avatar_url)
         embed.url = event.bot.invite_url
