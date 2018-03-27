@@ -1,7 +1,7 @@
 module Bot::DiscordCommands
     module Eval
       extend Discordrb::Commands::CommandContainer
-      bot.command(:archive) do |event|
+      command(:archive) do |event|
         if event.user.id == 123927345307451392
           channel = event.message.channel.id
           arch = event.bot.channel(channel).history(100, event.message.id) # amount, latest message in channel
