@@ -62,17 +62,20 @@ module Bot::DiscordCommands
         next false unless react_event.message.id == emb.id && event.author.id == react_event.user.id
         newemb = Discordrb::Webhooks::Embed.new title: "#{search[index]["title"]}", description: "#{search[index]["description"]}", footer:   Discordrb::Webhooks::EmbedFooter.new(text: "#{search[index]["like_count"]} Likes, #{search[index]["dislike_count"]} Dislikes, #{search[index]["view_count"]} Views, #{search[index]["comment_count"]} Comments", icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png'), thumbnail: Discordrb::Webhooks::EmbedThumbnail.new(url: search[index]["thumbnail"])
         emb.edit("Ok, adding video:", newemb)
-        sleep(5)
         event.bot.awaits.delete(:"reactleft#{emb.id}")
         event.bot.awaits.delete(:"reactright#{emb.id}")
         event.bot.awaits.delete(:"reactdelete#{emb.id}")
         event.bot.awaits.delete(:"reactcheckmark#{emb.id}")
-        emb.delete
+        Thread.new do # sleep freezes the main thread, so we make a new one instead, awaits are not in here because race condition with the buttons
+          sleep(5) 
+          emb.delete
+        end
       end
 
       emb.react("\u{1f5D1}")
       event.bot.add_await(:"reactdelete#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: "\u{1f5D1}") do |react_event|
         next false unless react_event.message.id == emb.id && event.author.id == react_event.user.id
+        next true if emb == nil # hack because you could checkmark and then delet
         event.bot.awaits.delete(:"reactleft#{emb.id}")
         event.bot.awaits.delete(:"reactright#{emb.id}")
         event.bot.awaits.delete(:"reactdelete#{emb.id}")
