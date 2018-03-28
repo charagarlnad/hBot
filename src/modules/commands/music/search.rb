@@ -7,7 +7,7 @@ module Bot::DiscordCommands
       event.channel.send_embed do |e|
         e.title = "#{search[index].title}"
         e.description = "#{search[index].description}"
-        e.footer = Discordrb::Webhooks::EmbedFooter.new(text: "#{search[index]o.like_count} Likes, #{search[index].dislike_count} Dislikes, #{search[index].view_count} Views, #{search[index].comment_count} Comments", icon_url: 'https://www.youtube.com/yt/brand/media/image/YouTube-icon-full_color.png')
+        e.footer = Discordrb::Webhooks::EmbedFooter.new(text: "#{search[index].like_count} Likes, #{search[index].dislike_count} Dislikes, #{search[index].view_count} Views, #{search[index].comment_count} Comments", icon_url: 'https://www.youtube.com/yt/brand/media/image/YouTube-icon-full_color.png')
         e.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: search[index].thumbnail_url)
         e.url = "https://www.youtube.com/watch?v=#{search[index].id}"
       end
@@ -24,7 +24,7 @@ module Bot::DiscordCommands
         event.channel.send_embed do |e|
           e.title = "#{search[index].title}"
           e.description = "#{search[index].description}"
-          e.footer = Discordrb::Webhooks::EmbedFooter.new(text: "#{search[index]o.like_count} Likes, #{search[index].dislike_count} Dislikes, #{search[index].view_count} Views, #{search[index].comment_count} Comments", icon_url: 'https://www.youtube.com/yt/brand/media/image/YouTube-icon-full_color.png')
+          e.footer = Discordrb::Webhooks::EmbedFooter.new(text: "#{search[index].like_count} Likes, #{search[index].dislike_count} Dislikes, #{search[index].view_count} Views, #{search[index].comment_count} Comments", icon_url: 'https://www.youtube.com/yt/brand/media/image/YouTube-icon-full_color.png')
           e.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: search[index].thumbnail_url)
           e.url = "https://www.youtube.com/watch?v=#{search[index].id}"
         end
