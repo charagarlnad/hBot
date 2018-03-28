@@ -13,3 +13,6 @@ owner:
 
 # game the bot is playing
 game:
+
+# youtube api token
+youtube_token:

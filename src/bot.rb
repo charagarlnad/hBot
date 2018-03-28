@@ -25,6 +25,10 @@ module Bot
   # newlines are for nerds, I throw everything on one line, fuck off rubocop
   BOT = Discordrb::Commands::CommandBot.new(client_id: CONFIG.client_id, token: CONFIG.token, prefix: CONFIG.prefix, help_available: false, no_permission_message: '')
 
+  Yt.configure do |config|
+    config.api_key = CONFIG.youtube_token
+  end
+
   # This class method wraps the module lazy-loading process of discordrb command
   # and event modules. Any module name passed to this method will have its child
   # constants iterated over and passed to `Discordrb::Commands::CommandBot#include!`
