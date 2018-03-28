@@ -57,12 +57,26 @@ module Bot::DiscordCommands
         false # false keeps alive the await
       end
 
+      emb.react("\u2714")
+      event.bot.add_await(:"reactcheckmark#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: "\u2714") do |react_event|
+        next false unless react_event.message.id == emb.id && event.author.id == react_event.user.id
+        newemb = Discordrb::Webhooks::Embed.new title: "#{search[index]["title"]}", description: "#{search[index]["description"]}", footer:   Discordrb::Webhooks::EmbedFooter.new(text: "#{search[index]["like_count"]} Likes, #{search[index]["dislike_count"]} Dislikes, #{search[index]["view_count"]} Views, #{search[index]["comment_count"]} Comments", icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png'), thumbnail: Discordrb::Webhooks::EmbedThumbnail.new(url: search[index]["thumbnail"])
+        emb.edit("Ok, adding video:", newemb)
+        sleep(5)
+        event.bot.awaits.delete(:"reactleft#{emb.id}")
+        event.bot.awaits.delete(:"reactright#{emb.id}")
+        event.bot.awaits.delete(:"reactdelete#{emb.id}")
+        event.bot.awaits.delete(:"reactcheckmark#{emb.id}")
+        emb.delete
+      end
+
       emb.react("\u{1f5D1}")
       event.bot.add_await(:"reactdelete#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: "\u{1f5D1}") do |react_event|
         next false unless react_event.message.id == emb.id && event.author.id == react_event.user.id
         event.bot.awaits.delete(:"reactleft#{emb.id}")
         event.bot.awaits.delete(:"reactright#{emb.id}")
         event.bot.awaits.delete(:"reactdelete#{emb.id}")
+        event.bot.awaits.delete(:"reactcheckmark#{emb.id}")
         emb.delete
       end
 
