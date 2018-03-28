@@ -5,7 +5,8 @@ module Bot::DiscordCommands
       query = Yt::Collections::Videos.new.where(q: search.join(' '), safe_search: 'none', order: 'relevance')
       index = 0
       search = []
-      query.take(5).each do |video|
+
+      query.take(5).each do |video| #vv unoptimized pls fix
         res1 = {}
         res1["video_id"] = video.id
         res1["url"] = "https://www.youtube.com/watch?v=" + video.id
@@ -74,7 +75,7 @@ module Bot::DiscordCommands
 
       emb.react("\u{1f5D1}")
       event.bot.add_await(:"reactdelete#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: "\u{1f5D1}") do |react_event|
-        next false unless react_event.message.id == emb.id && event.author.id == react_event.user.id
+        next false unless react_event.message.id == emb.id && event.author.id == react_event.user.id # can we remove this by adding more parameters to the add_await?
         next true if emb == nil # hack because you could checkmark and then delet
         event.bot.awaits.delete(:"reactleft#{emb.id}")
         event.bot.awaits.delete(:"reactright#{emb.id}")

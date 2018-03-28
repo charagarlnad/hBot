@@ -10,6 +10,7 @@ require 'mojang'
 require 'mediawiki-butt'
 require 'nokogiri'
 require 'yt'
+require 'youtube-dl.rb'
 
 # The main bot module.
 module Bot
