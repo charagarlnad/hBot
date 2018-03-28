@@ -42,7 +42,7 @@ module Bot::DiscordCommands
           newemb = Discordrb::Webhooks::Embed.new title: "#{search[index]["title"]}", description: "#{search[index]["description"]}", footer:   Discordrb::Webhooks::EmbedFooter.new(text: "#{search[index]["like_count"]} Likes, #{search[index]["dislike_count"]} Dislikes, #{search[index]["view_count"]} Views, #{search[index]["comment_count"]} Comments", icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png'), thumbnail: Discordrb::Webhooks::EmbedThumbnail.new(url: search[index]["thumbnail"])
           emb.edit("Video #{index + 1} (no more videos):", newemb)
         end
-        false
+        false # false keeps alive the await
       end
 
       event.bot.add_await(:"reactleft#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: "\u2b05") do |react_event|
@@ -58,6 +58,7 @@ module Bot::DiscordCommands
         false
       end
 
+      nil # needed so it doesnt return the await to the command block
     end
   end
 end
