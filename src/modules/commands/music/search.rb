@@ -1,7 +1,7 @@
 module Bot::DiscordCommands
   module Other
     extend Discordrb::Commands::CommandContainer
-    command :fakeperson do |event|
+    command :search do |event|
       search = Yt::Collections::Videos.new.where(q: search.join(' '), safe_search: 'none', order: 'relevance')
       index = 0
       event.channel.send_embed do |e|
