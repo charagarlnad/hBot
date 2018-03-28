@@ -30,8 +30,20 @@ module Bot::DiscordCommands
       end
 
       emb.react("\u2b05")
-      emb.react("\u27a1")
+      event.bot.add_await(:"reactleft#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: "\u2b05") do |react_event|
+        next false unless react_event.message.id == emb.id && event.author.id == react_event.user.id
+        if index - 1 >= 0
+          index -= 1
+          newemb = Discordrb::Webhooks::Embed.new title: "#{search[index]["title"]}", description: "#{search[index]["description"]}", footer:   Discordrb::Webhooks::EmbedFooter.new(text: "#{search[index]["like_count"]} Likes, #{search[index]["dislike_count"]} Dislikes, #{search[index]["view_count"]} Views, #{search[index]["comment_count"]} Comments", icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png'), thumbnail: Discordrb::Webhooks::EmbedThumbnail.new(url: search[index]["thumbnail"])
+          emb.edit("Video #{index + 1}:", newemb)
+        else
+          newemb = Discordrb::Webhooks::Embed.new title: "#{search[index]["title"]}", description: "#{search[index]["description"]}", footer:   Discordrb::Webhooks::EmbedFooter.new(text: "#{search[index]["like_count"]} Likes, #{search[index]["dislike_count"]} Dislikes, #{search[index]["view_count"]} Views, #{search[index]["comment_count"]} Comments", icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png'), thumbnail: Discordrb::Webhooks::EmbedThumbnail.new(url: search[index]["thumbnail"])
+          emb.edit("Video #{index + 1} (no more videos):", newemb)
+        end
+        false
+      end
 
+      emb.react("\u27a1")
       event.bot.add_await(:"reactright#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: "\u27a1") do |react_event|
         next false unless react_event.message.id == emb.id && event.author.id == react_event.user.id
         if index + 1 <= 4
@@ -45,17 +57,13 @@ module Bot::DiscordCommands
         false # false keeps alive the await
       end
 
-      event.bot.add_await(:"reactleft#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: "\u2b05") do |react_event|
+      emb.react("\u{1f5D1}")
+      event.bot.add_await(:"reactdelete#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: "\u{1f5D1}") do |react_event|
         next false unless react_event.message.id == emb.id && event.author.id == react_event.user.id
-        if index - 1 >= 0
-          index -= 1
-          newemb = Discordrb::Webhooks::Embed.new title: "#{search[index]["title"]}", description: "#{search[index]["description"]}", footer:   Discordrb::Webhooks::EmbedFooter.new(text: "#{search[index]["like_count"]} Likes, #{search[index]["dislike_count"]} Dislikes, #{search[index]["view_count"]} Views, #{search[index]["comment_count"]} Comments", icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png'), thumbnail: Discordrb::Webhooks::EmbedThumbnail.new(url: search[index]["thumbnail"])
-          emb.edit("Video #{index + 1}:", newemb)
-        else
-          newemb = Discordrb::Webhooks::Embed.new title: "#{search[index]["title"]}", description: "#{search[index]["description"]}", footer:   Discordrb::Webhooks::EmbedFooter.new(text: "#{search[index]["like_count"]} Likes, #{search[index]["dislike_count"]} Dislikes, #{search[index]["view_count"]} Views, #{search[index]["comment_count"]} Comments", icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png'), thumbnail: Discordrb::Webhooks::EmbedThumbnail.new(url: search[index]["thumbnail"])
-          emb.edit("Video #{index + 1} (no more videos):", newemb)
-        end
-        false
+        event.bot.awaits.delete(:"reactleft#{emb.id}")
+        event.bot.awaits.delete(:"reactright#{emb.id}")
+        event.bot.awaits.delete(:"reactdelete#{emb.id}")
+        emb.delete
       end
 
       nil # needed so it doesnt return the await to the command block
