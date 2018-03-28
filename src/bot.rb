@@ -9,6 +9,7 @@ require 'faker'
 require 'mojang'
 require 'mediawiki-butt'
 require 'nokogiri'
+require 'yt'
 
 # The main bot module.
 module Bot
