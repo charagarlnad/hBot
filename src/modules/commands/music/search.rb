@@ -4,35 +4,26 @@ module Bot::DiscordCommands
     command :search do |event, *search|
       query = Yt::Collections::Videos.new.where(q: search.join(' '), safe_search: 'none', order: 'relevance')
       index = 0
-      search = []
       videos = []
 
-      query.take(5).each do |video| #vv unoptimized pls fix
+      query.take(5).each do |video|
         videos << video
-        res1 = {}
-        res1["video_id"] = video.id
-        res1["url"] = "https://www.youtube.com/watch?v=" + video.id
-        res1["thumbnail"] = video.thumbnail_url
-        res1["title"] = video.title
-        res1["description"] = video.description
-        res1["like_count"] = video.like_count
-        res1["dislike_count"] = video.dislike_count
-        res1["view_count"] = video.view_count
-        res1["published_at"] = video.published_at
-        res1["duration"] = video.duration
-        res1["comment_count"] = video.comment_count
-        search << res1
       end
       
       emb = event.channel.send_embed("Video #{index + 1}:") do |e|
-        e.title = "#{search[index]["title"]}"
-        e.description = "#{search[index]["description"]}"
-        e.footer = Discordrb::Webhooks::EmbedFooter.new(text: "#{search[index]["like_count"]} Likes, #{search[index]["dislike_count"]} Dislikes, #{search[index]["view_count"]} Views, #{search[index]["comment_count"]} Comments", icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png')
-        e.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: search[index]["thumbnail"])
-        e.url = search[index]["url"]
+        e.title = videos[index].title
+        e.description = videos[index].description
+        e.footer = Discordrb::Webhooks::EmbedFooter.new(text: "#{videos[index].like_count} Likes, #{videos[index].dislike_count} Dislikes, #{videos[index].view_count} Views, #{videos[index].comment_count} Comments", icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png')
+        e.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: videos[index].thumbnail_url)
+        e.url = "https://www.youtube.com/watch?v=" + videos[index].id
       end
 
-      newemb = lambda { Discordrb::Webhooks::Embed.new title: "#{search[index]["title"]}", description: "#{search[index]["description"]}", footer:   Discordrb::Webhooks::EmbedFooter.new(text: "#{search[index]["like_count"]} Likes, #{search[index]["dislike_count"]} Dislikes, #{search[index]["view_count"]} Views, #{search[index]["comment_count"]} Comments", icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png'), thumbnail: Discordrb::Webhooks::EmbedThumbnail.new(url: search[index]["thumbnail"])      }
+      newemb = lambda { Discordrb::Webhooks::Embed.new title: videos[index].title,
+      description: videos[index].description, 
+      footer: Discordrb::Webhooks::EmbedFooter.new(text: "#{videos[index].like_count} Likes, #{videos[index].dislike_count} Dislikes, #{videos[index].view_count} Views, #{videos[index].comment_count} Comments",
+      icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png'),
+      thumbnail: Discordrb::Webhooks::EmbedThumbnail.new(url: videos[index].thumbnail_url),
+      url: "https://www.youtube.com/watch?v=" + videos[index].id }
 
       emb.react("\u2b05")
       event.bot.add_await(:"reactleft#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: "\u2b05") do |react_event|
@@ -65,10 +56,7 @@ module Bot::DiscordCommands
 
         addQueue(videos[index], event)
 
-        event.bot.awaits.delete(:"reactleft#{emb.id}")
-        event.bot.awaits.delete(:"reactright#{emb.id}")
-        event.bot.awaits.delete(:"reactdelete#{emb.id}")
-        event.bot.awaits.delete(:"reactcheckmark#{emb.id}")
+        event.bot.awaits.except!(:"reactleft#{emb.id}", :"reactright#{emb.id}", :"reactdelete#{emb.id}", :"reactcheckmark#{emb.id}")
         Thread.new do # sleep freezes the main thread, so we make a new one instead, awaits are not in here because race condition with the buttons
           sleep(5) 
           emb.delete
@@ -78,11 +66,7 @@ module Bot::DiscordCommands
       emb.react("\u{1f5D1}")
       event.bot.add_await(:"reactdelete#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: "\u{1f5D1}") do |react_event|
         next false unless react_event.message.id == emb.id && event.author.id == react_event.user.id # can we remove this by adding more parameters to the add_await?
-        next true if emb == nil # hack because you could checkmark and then delet
-        event.bot.awaits.delete(:"reactleft#{emb.id}")
-        event.bot.awaits.delete(:"reactright#{emb.id}")
-        event.bot.awaits.delete(:"reactdelete#{emb.id}")
-        event.bot.awaits.delete(:"reactcheckmark#{emb.id}")
+        event.bot.awaits.except!(:"reactleft#{emb.id}", :"reactright#{emb.id}", :"reactdelete#{emb.id}", :"reactcheckmark#{emb.id}")
         emb.delete
       end
 
