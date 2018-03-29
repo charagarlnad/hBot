@@ -6,7 +6,7 @@ module Bot::DiscordCommands
       index = 0
       videos = []
 
-      query.take(5).each do |video|
+      query.take(5).each do |video| # query is a enumerable instead of a array because muh optimizations or whatever >=(
         videos << video
       end
       

@@ -20,7 +20,7 @@ module Bot::DiscordCommands
       @masterqueue[event.server.id] << video
       if !(File.file?('data/musiccache/' + video.title + '.mp3'))
         Thread.new do
-          system("youtube-dl --format best --extract-audio --audio-format mp3 -o \"data/musiccache/#{video.title}.%(ext)s\" https://www.youtube.com/watch?v=#{video.id}")
+          system("youtube-dl --format best --recode-video mp4 -o \"data/musiccache/#{video.title}.%(ext)s\" https://www.youtube.com/watch?v=#{video.id}")
         end
       end
       self.playMusic(event)
@@ -29,10 +29,10 @@ module Bot::DiscordCommands
     def self.playMusic(event)
       if @masterqueue[event.server.id].length == 1
         until @masterqueue[event.server.id].size == 0
-          until File.exists?('data/musiccache/' + @masterqueue[event.server.id].first.title + '.mp3')
+          until File.exists?('data/musiccache/' + @masterqueue[event.server.id].first.title + '.mp4')
             sleep(0.1)
           end
-          event.voice.play_file('data/musiccache/' + @masterqueue[event.server.id].first.title + '.mp3')
+          event.voice.play_file('data/musiccache/' + @masterqueue[event.server.id].first.title + '.mp4')
           @masterqueue[event.server.id].shift
           #File.delete('data/musiccache/' + @masterqueue[event.server.id]0.title + '.mp3')
         end

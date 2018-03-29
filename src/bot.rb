@@ -10,6 +10,7 @@ require 'mojang'
 require 'mediawiki-butt'
 require 'nokogiri'
 require 'yt'
+require 'streamio-ffmpeg'
 
 # The main bot module.
 module Bot
