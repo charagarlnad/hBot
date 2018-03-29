@@ -6,6 +6,7 @@ module Bot::DiscordCommands
       next if event.voice == nil
       event.voice.stop_playing
       @masterqueue[event.server.id].shift
+      nil
     end
   end
 end
