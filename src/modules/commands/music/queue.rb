@@ -32,7 +32,7 @@ module Bot::DiscordCommands
           until File.exists?('data/musiccache/' + @masterqueue[event.server.id].first.title + '.mp3')
             sleep(0.1)
           end
-          event.voice.play_file('data/musiccache/' + @masterqueue[event.server.id].first.title + '.mp3') 
+          event.voice.play_file('data/musiccache/' + @masterqueue[event.server.id].first.title + '.mp3')
           @masterqueue[event.server.id].shift
           #File.delete('data/musiccache/' + @masterqueue[event.server.id]0.title + '.mp3')
         end

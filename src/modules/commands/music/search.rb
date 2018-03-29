@@ -1,12 +1,14 @@
 module Bot::DiscordCommands
-  module Other
+  module ImageEditing
     extend Discordrb::Commands::CommandContainer
     command :search do |event, *search|
       query = Yt::Collections::Videos.new.where(q: search.join(' '), safe_search: 'none', order: 'relevance')
       index = 0
       search = []
+      videos = []
 
       query.take(5).each do |video| #vv unoptimized pls fix
+        videos << video
         res1 = {}
         res1["video_id"] = video.id
         res1["url"] = "https://www.youtube.com/watch?v=" + video.id
@@ -63,6 +65,9 @@ module Bot::DiscordCommands
         next false unless react_event.message.id == emb.id && event.author.id == react_event.user.id
         newemb = Discordrb::Webhooks::Embed.new title: "#{search[index]["title"]}", description: "#{search[index]["description"]}", footer:   Discordrb::Webhooks::EmbedFooter.new(text: "#{search[index]["like_count"]} Likes, #{search[index]["dislike_count"]} Dislikes, #{search[index]["view_count"]} Views, #{search[index]["comment_count"]} Comments", icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png'), thumbnail: Discordrb::Webhooks::EmbedThumbnail.new(url: search[index]["thumbnail"])
         emb.edit("Ok, adding video:", newemb)
+
+        addQueue(videos[index], event)
+
         event.bot.awaits.delete(:"reactleft#{emb.id}")
         event.bot.awaits.delete(:"reactright#{emb.id}")
         event.bot.awaits.delete(:"reactdelete#{emb.id}")
