@@ -5,7 +5,9 @@ module Bot::DiscordCommands
       event.respond 'I am not in voice.' if event.voice == nil
       next if event.voice == nil
       video = Yt::Collections::Videos.new.where(q: search.join(' '), safe_search: 'none', order: 'relevance').first
-      sleep(0.25) # its slow and takes a sec so heres a wait for it lol
+      until video.title != nil
+        sleep(0.05)
+      end
       event.channel.send_embed("Ok, adding to queue:") do |e|
         e.title = video.title
         e.description = video.description
