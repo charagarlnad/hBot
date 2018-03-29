@@ -1,5 +1,5 @@
 module Bot::DiscordCommands
-  module ImageEditing
+  module Music
     extend Discordrb::Commands::CommandContainer
     @masterqueue = Hash.new(Array.new)
     command :queue do |event|

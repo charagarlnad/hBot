@@ -1,5 +1,5 @@
 module Bot::DiscordCommands
-  module ImageEditing
+  module Music
     extend Discordrb::Commands::CommandContainer
     command :summon do |event|
       event.voice.destroy if event.voice != nil # it gets stuck sometimes over a reboot so this fixes it

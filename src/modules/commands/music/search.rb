@@ -1,5 +1,5 @@
 module Bot::DiscordCommands
-  module ImageEditing
+  module Music
     extend Discordrb::Commands::CommandContainer
     command :search do |event, *search|
       query = Yt::Collections::Videos.new.where(q: search.join(' '), safe_search: 'none', order: 'relevance')

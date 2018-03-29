@@ -1,5 +1,5 @@
 module Bot::DiscordCommands
-  module ImageEditing
+  module Music
     extend Discordrb::Commands::CommandContainer
     command :play do |event, *search|
       event.respond 'I am not in voice.' if event.voice == nil
