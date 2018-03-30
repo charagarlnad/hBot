@@ -6,6 +6,8 @@ module Bot::DiscordCommands
     command :queue do |event|
       event.respond 'I am not in voice.' if event.voice == nil
       next nil if event.voice == nil
+      event.respond 'There is nothing in the queue.' if @masterqueue[event.server.id] == nil
+      next nil if @masterqueue[event.server.id] == nil
       event.respond 'There is nothing in the queue.' if @masterqueue[event.server.id].size == 0
       next nil if @masterqueue[event.server.id].size == 0
 
