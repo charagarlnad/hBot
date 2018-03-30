@@ -2,7 +2,6 @@ module Bot::DiscordCommands
   module Music
     extend Discordrb::Commands::CommandContainer
     @masterqueue = Hash.new()
-    @downloaders = Hash.new()
     command :queue do |event|
       event.respond 'I am not in voice.' if event.voice == nil
       next nil if event.voice == nil
@@ -24,26 +23,31 @@ module Bot::DiscordCommands
 
     def self.addVideo(event, video)
       @masterqueue[event.server.id] = Array.new
-      @masterqueue[event.server.id] << video
-      if !(File.file?('data/musiccache/' + `youtube-dl --restrict-filenames --get-filename -o "%(title)s" https://www.youtube.com/watch?v=#{video.id}`.chomp + '.mp4'))
-        @downloaders[video.id] = Thread.new do
+      videohash = Hash.new
+      videohash[:video] = video
+      videohash[:location] = 'data/musiccache/' + `youtube-dl --restrict-filenames --get-filename -o "%(title)s" https://www.youtube.com/watch?v=#{video.id}`.chomp + '.mp4'
+
+      if !(File.file?(videohash[:location]))
+        videohash[:downloader] = Thread.new do
           system("youtube-dl --restrict-filenames --format best --recode-video mp4 -o \"data/musiccache/%(title)s.%(ext)s\" https://www.youtube.com/watch?v=#{video.id}")
         end
       end
+
+      @masterqueue[event.server.id] << videohash
       startPlayer(event) if @masterqueue[event.server.id].size == 1
     end
 
     def self.startPlayer(event)
       Thread.new do
         until @masterqueue[event.server.id].size == 0 
-          if @downloaders[@masterqueue[event.server.id].first.id] != nil
-            until @downloaders[@masterqueue[event.server.id].first.id].alive? == false # Safe Navigation Operator
+          if @masterqueue[event.server.id].first[:downloader] != nil
+            until @masterqueue[event.server.id].first[:downloader].alive? == false
               sleep(0.1)
             end
           end
-          event.voice.play_file('data/musiccache/' + `youtube-dl --restrict-filenames --get-filename -o "%(title)s" https://www.youtube.com/watch?v=#{@masterqueue[event.server.id].first.id}`.chomp + '.mp4')
+          event.voice.play_file(@masterqueue[event.server.id].first[:location])
+          #File.delete(@masterqueue[event.server.id].first[:location])
           @masterqueue[event.server.id].shift
-          #File.delete('data/musiccache/' + @masterqueue[event.server.id]0.title + '.mp3')
         end
       end
       nil
