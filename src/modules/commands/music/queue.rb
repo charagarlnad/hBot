@@ -1,14 +1,14 @@
 module Bot::DiscordCommands
   module Music
     extend Discordrb::Commands::CommandContainer
-    @masterqueue = Hash.new(Array.new)
+    @masterqueue = Hash.new()
     @downloaders = Hash.new()
     command :queue do |event|
       event.respond 'I am not in voice.' if event.voice == nil
       next nil if event.voice == nil
       event.respond 'There is nothing in the queue.' if @masterqueue[event.server.id].size == 0
       next nil if @masterqueue[event.server.id].size == 0
-      
+
       event.channel.send_embed do |embed|
         @masterqueue[event.server.id][0..24].each do |video|
           embed.add_field(name: video.title + ', Length: ' + video.length, value: video.description)
@@ -21,6 +21,7 @@ module Bot::DiscordCommands
     end
 
     def self.addVideo(event, video)
+      @masterqueue[event.server.id] = Array.new
       @masterqueue[event.server.id] << video
       if !(File.file?('data/musiccache/' + `youtube-dl --restrict-filenames --get-filename -o "%(title)s" https://www.youtube.com/watch?v=#{video.id}`.chomp + '.mp4'))
         @downloaders[video.id] = Thread.new do
