@@ -8,7 +8,7 @@ module Bot::DiscordCommands
       next if vol.is_i? == false
 
       event.voice.volume = vol.to_i * 0.01
-      event.respond 'Ok, set the volume to ' + vol.to_i * 0.01 + '%'
+      event.respond "Ok, set the volume to #{vol.to_i}%"
       nil
     end
   end
