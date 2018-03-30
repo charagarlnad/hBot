@@ -2,16 +2,14 @@ module Bot::DiscordCommands
   module Games
     extend Discordrb::Commands::CommandContainer
     command :mojang do |event|
-      statuses = Mojang.status
+      statuses = JSON.parse(RestClient.get('https://status.mojang.com/check')).reduce Hash.new, :merge
       messages = {}
       statuses.each do |site, status|
         type = case site
                when 'minecraft.net' then 'Minecraft'
                when 'session.minecraft.net' then 'Minecraft Sessions'
                when 'account.mojang.com' then 'Mojang Account'
-               when 'auth.mojang.com' then 'Mojang Auth'
-               when 'skins.minecraft.net' then 'Minecraft Skins'
-               when 'authserver.mojang.com' then 'Mojang Auth Server'
+               when 'authserver.mojang.com' then 'Mojang Auth Server' 
                when 'sessionserver.mojang.com' then 'Mojang Sessions'
                when 'api.mojang.com' then 'Mojang API'
                when 'textures.minecraft.net' then 'Minecraft Textures'
@@ -19,9 +17,9 @@ module Bot::DiscordCommands
                else ''
                end
         resp = case status
-               when 'green' then '✓'
-               when 'yellow' then '~'
-               when 'red' then '✗'
+               when 'green' then '✅'
+               when 'yellow' then '⚠'
+               when 'red' then '❌'
                else ''
                end
 
