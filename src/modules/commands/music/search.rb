@@ -2,6 +2,9 @@ module Bot::DiscordCommands
   module Music
     extend Discordrb::Commands::CommandContainer
     command :search do |event, *search|
+      event.respond 'I am not in voice.' if event.voice == nil
+      next if event.voice == nil
+      
       query = Yt::Collections::Videos.new.where(q: search.join(' '), safe_search: 'none', order: 'relevance')
       index = 0
       videos = []
@@ -54,7 +57,7 @@ module Bot::DiscordCommands
         next false unless react_event.message.id == emb.id && event.author.id == react_event.user.id
         emb.edit("Ok, adding video:", newemb.call)
 
-        addQueue(videos[index], event)
+        addVideo(event, videos[index])
 
         event.bot.awaits.except!(:"reactleft#{emb.id}", :"reactright#{emb.id}", :"reactdelete#{emb.id}", :"reactcheckmark#{emb.id}")
         Thread.new do # sleep freezes the main thread, so we make a new one instead, awaits are not in here because race condition with the buttons
