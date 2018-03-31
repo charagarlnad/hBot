@@ -5,7 +5,7 @@ module Bot::DiscordCommands
       event.channel.send_embed do |embed|
         embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: Faker::Avatar.image)
         embed.author = Discordrb::Webhooks::EmbedAuthor.new(name: Faker::Name.name)
-        embed.color = 7440596
+        embed.color = 0x7289DA
 
         embed.add_field(name: "Address", value: "#{Faker::Address.street_address}, #{Faker::Address.city}, #{Faker::Address.state} #{Faker::Address.zip}", inline: true)
         embed.add_field(name: "Profession", value: Faker::Company.profession.capitalize, inline: true)

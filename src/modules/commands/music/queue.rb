@@ -69,7 +69,7 @@ module Bot::DiscordCommands
             embed.title = @masterqueue[event.server.id].first[:video].title
             embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: @masterqueue[event.server.id].first[:video].thumbnail_url)  
             embed.footer = Discordrb::Webhooks::EmbedFooter.new(text: "#{@masterqueue[event.server.id].first[:video].like_count} Likes, #{@masterqueue[event.server.id].first[:video].dislike_count} Dislikes, #{@masterqueue[event.server.id].first[:video].view_count} Views, #{@masterqueue[event.server.id].first[:video].comment_count} Comments", icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png')
-            embed.color = 7440596
+            embed.color = 0x89DA72
           end
           event.voice.play_file(@masterqueue[event.server.id].first[:location])
           emb.delete

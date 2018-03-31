@@ -16,6 +16,7 @@ module Bot::DiscordCommands
         e.footer = Discordrb::Webhooks::EmbedFooter.new(text: "#{video.like_count} Likes, #{video.dislike_count} Dislikes, #{video.view_count} Views, #{video.comment_count} Comments", icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png')
         e.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: video.thumbnail_url)
         e.url = "https://www.youtube.com/watch?v=" + video.id
+        e.color = 0x7289DA
       end
 
       Thread.new do
