@@ -47,7 +47,19 @@ module Bot::DiscordCommands
       event.bot.add_await(:"reactcheckmark#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: checkmark, from: event.author, message: emb) do |react_event|
         emb.edit("Ok, adding video:", newemb.call)
 
-        addVideo(event, videos[index])
+        video = {}
+
+        video[:description] = videos[index].description
+        video[:title] = videos[index].title
+        video[:url] = 'https://www.youtube.com/watch?v=' + videos[index].id
+        video[:thumbnail_url] = videos[index].thumbnail_url
+        video[:like_count] = videos[index].like_count
+        video[:dislike_count] = videos[index].dislike_count
+        video[:comment_count] = videos[index].comment_count
+        video[:view_count] = videos[index].view_count
+        video[:length] = videos[index].length
+
+        addVideo(event, video)
 
         event.bot.awaits.except!(:"reactleft#{emb.id}", :"reactright#{emb.id}", :"reactdelete#{emb.id}", :"reactcheckmark#{emb.id}")
         Thread.new do # sleep freezes the main thread, so we make a new one instead, awaits are not in here because race condition with the buttons

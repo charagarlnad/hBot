@@ -8,10 +8,10 @@ module Bot::DiscordCommands
       next if event.voice.playing? == false
 
       emb = event.channel.send_embed do |embed|
-        embed.description = @masterqueue[event.server.id].first[:video].description
-        embed.title = @masterqueue[event.server.id].first[:video].title
-        embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: @masterqueue[event.server.id].first[:video].thumbnail_url)  
-        embed.footer = Discordrb::Webhooks::EmbedFooter.new(text: "#{Time.at(event.voice.stream_time.to_i).utc.strftime("%H:%M:%S")}/#{@masterqueue[event.server.id].first[:video].length}")
+        embed.description = @masterqueue[event.server.id].first[:description]
+        embed.title = @masterqueue[event.server.id].first[:title]
+        embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: @masterqueue[event.server.id].first[:thumbnail_url])  
+        embed.footer = Discordrb::Webhooks::EmbedFooter.new(text: "#{Time.at(event.voice.stream_time.to_i).utc.strftime("%H:%M:%S")}/#{@masterqueue[event.server.id].first[:length]}")
         embed.color = 0x7289DA
       end
 
