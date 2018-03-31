@@ -10,6 +10,17 @@ module Bot::DiscordCommands
       next if event.voice.playing? == false
 
       event.voice.skip(time.to_i)
+      emb = event.channel.send_embed() do |e|
+        e.description = "Ok, skipped #{time} seconds ahead."
+        e.color = 0x7289DA
+      end
+
+      Thread.new do
+        sleep(8) 
+        emb.delete
+      end
+
+      nil
       nil
     end
   end

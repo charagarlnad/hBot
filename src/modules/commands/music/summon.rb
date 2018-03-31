@@ -7,7 +7,17 @@ module Bot::DiscordCommands
 
       event.voice.destroy if event.voice != nil # it gets stuck sometimes over a reboot so this fixes it
       event.bot.voice_connect(event.user.voice_channel)
-      event.respond "Ok, joining `#{event.user.voice_channel.name}`"
+
+      emb = event.channel.send_embed() do |e|
+        e.description = "Ok, joining `#{event.user.voice_channel.name}`"
+        e.color = 0x7289DA
+      end
+
+      Thread.new do
+        sleep(8) 
+        emb.delete
+      end
+
       nil
     end
   end

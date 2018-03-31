@@ -8,7 +8,17 @@ module Bot::DiscordCommands
       next if vol.is_i? == false
 
       event.voice.volume = vol.to_i * 0.01
-      event.respond "Ok, set the volume to #{vol.to_i}%"
+      
+      emb = event.channel.send_embed() do |e|
+        e.description = "Ok, set the volume to #{vol.to_i}%"
+        e.color = 0x7289DA
+      end
+
+      Thread.new do
+        sleep(8) 
+        emb.delete
+      end
+
       nil
     end
   end

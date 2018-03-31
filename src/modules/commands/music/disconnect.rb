@@ -8,7 +8,17 @@ module Bot::DiscordCommands
       @masterqueue[event.server.id].clear
       event.voice.stop_playing
       event.voice.destroy
-      event.respond 'Disconnected.'
+      
+      emb = event.channel.send_embed() do |e|
+        e.description = "Disconnected."
+        e.color = 0x7289DA
+      end
+
+      Thread.new do
+        sleep(8) 
+        emb.delete
+      end
+
       nil
     end
   end

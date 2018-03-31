@@ -8,7 +8,18 @@ module Bot::DiscordCommands
       next if event.voice.playing? == false
 
       event.voice.continue
-      event.respond "Ok, resumed the video."
+      
+      emb = event.channel.send_embed() do |e|
+        e.description = "Ok, resumed the video."
+        e.color = 0x7289DA
+      end
+
+      Thread.new do
+        sleep(8) 
+        emb.delete
+      end
+
+      nil
     end
   end
 end
