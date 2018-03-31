@@ -51,7 +51,7 @@ module Bot::DiscordCommands
 
         event.bot.awaits.except!(:"reactleft#{emb.id}", :"reactright#{emb.id}", :"reactdelete#{emb.id}", :"reactcheckmark#{emb.id}")
         Thread.new do # sleep freezes the main thread, so we make a new one instead, awaits are not in here because race condition with the buttons
-          sleep(5) 
+          sleep(8) 
           emb.delete
         end
       end

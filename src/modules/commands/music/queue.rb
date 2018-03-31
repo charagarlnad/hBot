@@ -10,7 +10,7 @@ module Bot::DiscordCommands
       event.respond 'There is nothing in the queue.' if @masterqueue[event.server.id].size == 0
       next nil if @masterqueue[event.server.id].size == 0
 
-      event.channel.send_embed do |embed|
+      emb = event.channel.send_embed do |embed|
         @masterqueue[event.server.id][0..24].each do |videohash|
           embed.add_field(name: videohash[:video].title + ', Length: ' + videohash[:video].length, value: videohash[:video].description)
         end
@@ -19,6 +19,13 @@ module Bot::DiscordCommands
         embed.footer = Discordrb::Webhooks::EmbedFooter.new(text: @masterqueue[event.server.id].count.to_s + " videos in queue.")
         embed.color = 7440596
       end
+
+      Thread.new do
+        sleep(32) 
+        emb.delete
+      end
+      nil
+
     end
 
     def self.addVideo(event, video)
@@ -69,6 +76,7 @@ module Bot::DiscordCommands
             embed.title = @masterqueue[event.server.id].first[:video].title
             embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: @masterqueue[event.server.id].first[:video].thumbnail_url)  
             embed.footer = Discordrb::Webhooks::EmbedFooter.new(text: "#{@masterqueue[event.server.id].first[:video].like_count} Likes, #{@masterqueue[event.server.id].first[:video].dislike_count} Dislikes, #{@masterqueue[event.server.id].first[:video].view_count} Views, #{@masterqueue[event.server.id].first[:video].comment_count} Comments", icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png')
+            embed.url = "https://www.youtube.com/watch?v=" + @masterqueue[event.server.id].first[:video].id
             embed.color = 0x89DA72
           end
           event.voice.play_file(@masterqueue[event.server.id].first[:location])

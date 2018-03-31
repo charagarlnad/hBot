@@ -20,7 +20,7 @@ module Bot::DiscordCommands
       end
 
       Thread.new do
-        sleep(5) 
+        sleep(8) 
         emb.delete
       end
 
