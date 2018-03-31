@@ -1,5 +1,5 @@
 module Bot::DiscordCommands
-  module Music
+  module Owner
     extend Discordrb::Commands::CommandContainer
     command :clearcache do |event|
       if event.user.id == 123927345307451392
