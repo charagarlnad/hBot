@@ -22,7 +22,7 @@ module Bot::DiscordCommands
       else
         emb = event.channel.send_embed do |embed|
           @masterqueue[event.server.id][0..24].each do |videohash|
-            embed.add_field(name: videohash[:title] + ', Length: ' + videohash[:length], value: videohash[:description])
+            embed.add_field(name: videohash[:title], value: "added by: #{videohash[:event].user.name}, length: #{videohash[:length]}\n#{videohash[:description]}")
           end
           embed.title = "**hBot Queue** - Video time: #{Time.at(event.voice.stream_time.to_i).utc.strftime('%H:%M:%S')}/#{@masterqueue[event.server.id].first[:length]}"
           embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: event.bot.profile.avatar_url)
@@ -39,6 +39,7 @@ module Bot::DiscordCommands
       Thread.new do
         @masterqueue[event.server.id] = [] if @masterqueue[event.server.id].nil?
         video[:location] = 'data/musiccache/' + `youtube-dl --restrict-filenames --get-filename -o "%(title)s" #{video[:url]}`.chomp + '.mp4'
+        video[:event] = event
 
         unless File.file?(video[:location])
           video[:downloader] = Thread.new do
@@ -56,6 +57,7 @@ module Bot::DiscordCommands
       Thread.new do
         @masterqueue[event.server.id] = [] if @masterqueue[event.server.id].nil?
         video[:location] = 'data/musiccache/bassboost-' + `youtube-dl --restrict-filenames --get-filename -o "%(title)s" #{video[:url]}`.chomp + '.mp4'
+        video[:event] = event
 
         unless File.file?(video[:location])
           video[:downloader] = Thread.new do
@@ -82,6 +84,7 @@ module Bot::DiscordCommands
         end
 
         emb = event.channel.send_embed('Now playing:') do |embed|
+          embed.add_field(name: 'Added by:', value: event.user.name)
           embed.description = @masterqueue[event.server.id].first[:description]
           embed.title = @masterqueue[event.server.id].first[:title]
           embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: @masterqueue[event.server.id].first[:thumbnail_url])
@@ -89,6 +92,7 @@ module Bot::DiscordCommands
           embed.url = @masterqueue[event.server.id].first[:url]
           embed.color = 0x89DA72
         end
+        event.bot.listening = @masterqueue[event.server.id].first[:title]
         event.voice.play_file(@masterqueue[event.server.id].first[:location])
 
         begin
