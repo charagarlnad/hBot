@@ -3,21 +3,31 @@ module Bot::DiscordCommands
     extend Discordrb::Commands::CommandContainer
     @masterqueue = {}
     command :queue do |event|
-      event.respond 'I am not in voice.' if event.voice.nil?
-      next nil if event.voice.nil?
-      event.respond 'There is nothing in the queue.' if @masterqueue[event.server.id].nil?
-      next nil if @masterqueue[event.server.id].nil?
-      event.respond 'There is nothing in the queue.' if @masterqueue[event.server.id].empty?
-      next nil if @masterqueue[event.server.id].empty?
-
-      emb = event.channel.send_embed do |embed|
-        @masterqueue[event.server.id][0..24].each do |videohash|
-          embed.add_field(name: videohash[:title] + ', Length: ' + videohash[:length], value: videohash[:description])
+      if event.voice.nil?
+        emb = event.channel.send_embed do |e|
+          e.description = "I am not in voice."
+          e.color = 0x7289DA
         end
-        embed.title = "**hBot Queue** - Video time: #{Time.at(event.voice.stream_time.to_i).utc.strftime('%H:%M:%S')}/#{@masterqueue[event.server.id].first[:length]}"
-        embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: event.bot.profile.avatar_url)
-        embed.footer = Discordrb::Webhooks::EmbedFooter.new(text: @masterqueue[event.server.id].count.to_s + ' videos in queue.')
-        embed.color = 0x7289DA
+      elsif event.voice.playing? == false
+        emb = event.channel.send_embed do |e|
+          e.description = "There is nothing playing."
+          e.color = 0x7289DA
+        end
+      elsif @masterqueue[event.server.id].empty?
+        emb = event.channel.send_embed do |e|
+          e.description = "There is nothing in the queue."
+          e.color = 0x7289DA
+        end
+      else
+        emb = event.channel.send_embed do |embed|
+          @masterqueue[event.server.id][0..24].each do |videohash|
+            embed.add_field(name: videohash[:title] + ', Length: ' + videohash[:length], value: videohash[:description])
+          end
+          embed.title = "**hBot Queue** - Video time: #{Time.at(event.voice.stream_time.to_i).utc.strftime('%H:%M:%S')}/#{@masterqueue[event.server.id].first[:length]}"
+          embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: event.bot.profile.avatar_url)
+          embed.footer = Discordrb::Webhooks::EmbedFooter.new(text: @masterqueue[event.server.id].count.to_s + ' videos in queue.')
+          embed.color = 0x7289DA
+        end
       end
 
       sleep(32)

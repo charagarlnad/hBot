@@ -2,17 +2,32 @@ module Bot::DiscordCommands
   module Music
     extend Discordrb::Commands::CommandContainer
     command :addtime do |event, time|
-      event.respond 'I am not in voice.' if event.voice.nil?
-      next if event.voice.nil?
-      event.respond 'That is not a number.' if time.is_i? == false
-      next if time.is_i? == false
-      event.respond 'There is nothing playing.' if event.voice.playing? == false
-      next if event.voice.playing? == false
-
-      event.voice.skip(time.to_i)
-      emb = event.channel.send_embed do |e|
-        e.description = "Ok, skipped #{time} seconds ahead."
-        e.color = 0x7289DA
+      if event.voice.nil?
+        emb = event.channel.send_embed do |e|
+          e.description = "I am not in voice."
+          e.color = 0x7289DA
+        end
+      elsif time == nil
+        emb = event.channel.send_embed do |e|
+          e.description = "A number is required."
+          e.color = 0x7289DA
+        end
+      elsif time.is_i? == false
+        emb = event.channel.send_embed do |e|
+          e.description = "That is not a number."
+          e.color = 0x7289DA
+        end
+      elsif event.voice.playing? == false
+        emb = event.channel.send_embed do |e|
+          e.description = "There is nothing playing."
+          e.color = 0x7289DA
+        end
+      else
+        event.voice.skip(time.to_i)
+        emb = event.channel.send_embed do |e|
+          e.description = "Ok, skipped #{time} seconds ahead."
+          e.color = 0x7289DA
+        end
       end
 
       sleep(8)

@@ -2,9 +2,6 @@ module Bot::DiscordCommands
   module Music
     extend Discordrb::Commands::CommandContainer
     command :summon do |event|
-      event.respond 'You are not in voice.' if event.user.voice_channel.nil?
-      next if event.user.voice_channel.nil?
-
       event.voice.destroy unless event.voice.nil? # it gets stuck sometimes over a reboot so this fixes it
       event.bot.voice_connect(event.user.voice_channel)
 
