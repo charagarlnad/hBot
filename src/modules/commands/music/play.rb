@@ -2,11 +2,11 @@ module Bot::DiscordCommands
   module Music
     extend Discordrb::Commands::CommandContainer
     command :play do |event, *search|
-      event.respond 'I am not in voice.' if event.voice == nil
-      next if event.voice == nil
+      event.respond 'I am not in voice.' if event.voice.nil?
+      next if event.voice.nil?
       video = {}
 
-      if search.size == 1 && search.first.include?('http') && !(search.first.include?('youtube.com'))
+      if search.size == 1 && search.first.include?('http') && !search.first.include?('youtube.com')
         puts 'got a regular url!'
         if `youtube-dl -j #{search.first}`.chomp == ''
           event.respond 'Invalid url.'
@@ -24,9 +24,7 @@ module Bot::DiscordCommands
       else
         query = Yt::Collections::Videos.new.where(q: search.join(' '), safe_search: 'none', order: 'relevance').first
 
-        until query.title != nil
-          sleep(0.05)
-        end
+        sleep(0.05) while query.title.nil?
 
         video[:description] = query.description
         video[:title] = query.title
@@ -39,7 +37,7 @@ module Bot::DiscordCommands
         video[:length] = query.length
       end
 
-      emb = event.channel.send_embed("Ok, adding to queue:") do |e|
+      emb = event.channel.send_embed('Ok, adding to queue:') do |e|
         e.title = video[:title]
         e.description = video[:description]
         e.footer = Discordrb::Webhooks::EmbedFooter.new(text: "#{video[:like_count]} Likes, #{video[:dislike_count]} Dislikes, #{video[:view_count]} Views, #{video[:comment_count]} Comments", icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png')
@@ -49,11 +47,11 @@ module Bot::DiscordCommands
       end
 
       Thread.new do
-        sleep(8) 
+        sleep(8)
         emb.delete
       end
 
-      addVideo(event, video)
+      add_video(event, video)
     end
   end
 end
