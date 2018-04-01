@@ -2,6 +2,7 @@ module Bot::DiscordCommands
   module Music
     extend Discordrb::Commands::CommandContainer
     @masterqueue = {}
+    @embedtimeout = 30
     command :queue do |event|
       if event.voice.nil?
         emb = event.channel.send_embed do |e|
@@ -30,7 +31,7 @@ module Bot::DiscordCommands
         end
       end
 
-      sleep(32)
+      sleep(@embedtimeout)
       emb.delete
 
     end

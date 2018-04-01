@@ -18,7 +18,7 @@ module Bot::DiscordCommands
         emb =event.channel.send_file File.new('data/musiccache/screenshot.png')
       end
 
-      sleep(8)
+      sleep(@embedtimeout)
       emb.delete
       
     end

@@ -10,7 +10,7 @@ module Bot::DiscordCommands
         e.color = 0x7289DA
       end
 
-      sleep(8)
+      sleep(@embedtimeout)
       emb.delete
 
     end

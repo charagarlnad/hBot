@@ -21,7 +21,7 @@ module Bot::DiscordCommands
               e.color = 0x7289DA
             end
 
-            sleep(8)
+            sleep(@embedtimeout)
             emb.delete
             break
           end
@@ -62,7 +62,7 @@ module Bot::DiscordCommands
         add_video(event, video)
       end
 
-      sleep(8)
+      sleep(@embedtimeout)
       emb.delete
 
     end

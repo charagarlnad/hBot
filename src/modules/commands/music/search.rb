@@ -75,7 +75,7 @@ module Bot::DiscordCommands
   
           add_video(event, video)
   
-          sleep(8)
+          sleep(@embedtimeout)
           emb.delete
           
         end
