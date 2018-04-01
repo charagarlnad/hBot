@@ -1,9 +1,10 @@
 # Gems
-require 'discordrb'
 require 'ostruct'
 require 'yaml'
-require 'rmagick'
 require 'open-uri'
+
+require 'discordrb'
+require 'rmagick'
 require 'opencv'
 require 'faker'
 require 'mediawiki-butt'
