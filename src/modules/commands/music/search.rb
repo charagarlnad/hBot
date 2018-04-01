@@ -27,6 +27,7 @@ module Bot::DiscordCommands
       emb = event.channel.send_embed("Video #{index + 1}:", newemb.call)
 
       event.bot.add_await(:"reactleft#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: leftarrow, from: event.author, message: emb) do
+        emb.delete_reaction(event.author, leftarrow)
         if index - 1 >= 0
           index -= 1
           emb.edit("Video #{index + 1}:", newemb.call)
@@ -37,6 +38,7 @@ module Bot::DiscordCommands
       end
 
       event.bot.add_await(:"reactright#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: rightarrow, from: event.author, message: emb) do
+        emb.delete_reaction(event.author, rightarrow)
         if index + 1 <= 7
           index += 1
           emb.edit("Video #{index + 1}:", newemb.call)
@@ -46,7 +48,7 @@ module Bot::DiscordCommands
         false # false keeps alive the await
       end
 
-      event.bot.add_await(:"reactcheckmark#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: checkmark, from: event.author, message: emb) do
+      event.bot.add_await(:"reactcheckmark#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: checkmark, from: event.author, message: emb) do 
         emb.edit('Ok, adding video:', newemb.call)
 
         video = {}
@@ -61,13 +63,13 @@ module Bot::DiscordCommands
         video[:view_count] = videos[index].view_count
         video[:length] = videos[index].length
 
+        event.bot.awaits.except!(:"reactleft#{emb.id}", :"reactright#{emb.id}", :"reactdelete#{emb.id}", :"reactcheckmark#{emb.id}")
+
         add_video(event, video)
 
-        event.bot.awaits.except!(:"reactleft#{emb.id}", :"reactright#{emb.id}", :"reactdelete#{emb.id}", :"reactcheckmark#{emb.id}")
-        Thread.new do # sleep freezes the main thread, so we make a new one instead, awaits are not in here because race condition with the buttons
-          sleep(8)
-          emb.delete
-        end
+        sleep(8)
+        emb.delete
+        
       end
 
       event.bot.add_await(:"reactdelete#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: trashcan, from: event.author, message: emb) do

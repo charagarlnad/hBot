@@ -15,12 +15,9 @@ module Bot::DiscordCommands
         e.color = 0x7289DA
       end
 
-      Thread.new do
-        sleep(8)
-        emb.delete
-      end
+      sleep(8)
+      emb.delete
 
-      nil
     end
   end
 end

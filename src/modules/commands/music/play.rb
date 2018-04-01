@@ -46,12 +46,11 @@ module Bot::DiscordCommands
         e.color = 0x7289DA
       end
 
-      Thread.new do
-        sleep(8)
-        emb.delete
-      end
-
       add_video(event, video)
+
+      sleep(8)
+      emb.delete
+
     end
   end
 end
