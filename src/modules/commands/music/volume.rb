@@ -4,17 +4,17 @@ module Bot::DiscordCommands
     command :volume do |event, vol|
       if event.voice.nil?
         emb = event.channel.send_embed do |e|
-          e.description = "I am not in voice."
+          e.description = 'I am not in voice.'
           e.color = 0x7289DA
         end
       elsif vol.is_i? == false
         emb = event.channel.send_embed do |e|
-          e.description = "That is not a number."
+          e.description = 'That is not a number.'
           e.color = 0x7289DA
         end
       elsif event.voice.playing? == false
         emb = event.channel.send_embed do |e|
-          e.description = "There is nothing playing."
+          e.description = 'There is nothing playing.'
           e.color = 0x7289DA
         end
       else
@@ -27,7 +27,6 @@ module Bot::DiscordCommands
 
       sleep(@embedtimeout)
       emb.delete
-
     end
   end
 end

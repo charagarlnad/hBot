@@ -10,18 +10,18 @@ module Bot::DiscordCommands
     command :search do |event, *search|
       if event.voice.nil?
         emb = event.channel.send_embed do |e|
-          e.description = "I am not in voice."
+          e.description = 'I am not in voice.'
           e.color = 0x7289DA
         end
       elsif search.empty?
         emb = event.channel.send_embed do |e|
-          e.description = "A search is required."
+          e.description = 'A search is required.'
           e.color = 0x7289DA
         end
       else
         videos = Yt::Collections::Videos.new.where(q: search.join(' '), safe_search: 'none', order: 'relevance').take(8)
         index = 0
-  
+
         newemb = lambda {
           Discordrb::Webhooks::Embed.new title: videos[index].title,
           description: videos[index].description,
@@ -31,9 +31,9 @@ module Bot::DiscordCommands
           url: 'https://www.youtube.com/watch?v=' + videos[index].id,
           color: 0x7289DA
         }
-  
+
         emb = event.channel.send_embed("Video #{index + 1}:", newemb.call)
-  
+
         event.bot.add_await(:"reactleft#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: leftarrow, from: event.author, message: emb) do
           emb.delete_reaction(event.author, leftarrow)
           if index - 1 >= 0
@@ -44,7 +44,7 @@ module Bot::DiscordCommands
           end
           false
         end
-  
+
         event.bot.add_await(:"reactright#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: rightarrow, from: event.author, message: emb) do
           emb.delete_reaction(event.author, rightarrow)
           if index + 1 <= 7
@@ -55,12 +55,12 @@ module Bot::DiscordCommands
           end
           false # false keeps alive the await
         end
-  
-        event.bot.add_await(:"reactcheckmark#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: checkmark, from: event.author, message: emb) do 
+
+        event.bot.add_await(:"reactcheckmark#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: checkmark, from: event.author, message: emb) do
           emb.edit('Ok, adding video:', newemb.call)
-  
+
           video = {}
-  
+
           video[:description] = videos[index].description
           video[:title] = videos[index].title
           video[:url] = 'https://www.youtube.com/watch?v=' + videos[index].id
@@ -70,27 +70,25 @@ module Bot::DiscordCommands
           video[:comment_count] = videos[index].comment_count
           video[:view_count] = videos[index].view_count
           video[:length] = videos[index].length
-  
+
           event.bot.awaits.except!(:"reactleft#{emb.id}", :"reactright#{emb.id}", :"reactdelete#{emb.id}", :"reactcheckmark#{emb.id}")
-  
+
           add_video(event, video)
-  
+
           sleep(@embedtimeout)
           emb.delete
-          
         end
-  
+
         event.bot.add_await(:"reactdelete#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: trashcan, from: event.author, message: emb) do
           event.bot.awaits.except!(:"reactleft#{emb.id}", :"reactright#{emb.id}", :"reactdelete#{emb.id}", :"reactcheckmark#{emb.id}")
           emb.delete
         end
-  
+
         emb.react(leftarrow)
         emb.react(rightarrow)
         emb.react(checkmark)
         emb.react(trashcan)
       end
-
     end
   end
 end

@@ -12,7 +12,6 @@ module Bot::DiscordCommands
 
       sleep(@embedtimeout)
       emb.delete
-
     end
   end
 end

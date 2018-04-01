@@ -6,17 +6,17 @@ module Bot::DiscordCommands
     command :queue do |event|
       if event.voice.nil?
         emb = event.channel.send_embed do |e|
-          e.description = "I am not in voice."
+          e.description = 'I am not in voice.'
           e.color = 0x7289DA
         end
       elsif event.voice.playing? == false
         emb = event.channel.send_embed do |e|
-          e.description = "There is nothing playing."
+          e.description = 'There is nothing playing.'
           e.color = 0x7289DA
         end
       elsif @masterqueue[event.server.id].empty?
         emb = event.channel.send_embed do |e|
-          e.description = "There is nothing in the queue."
+          e.description = 'There is nothing in the queue.'
           e.color = 0x7289DA
         end
       else
@@ -33,7 +33,6 @@ module Bot::DiscordCommands
 
       sleep(@embedtimeout)
       emb.delete
-
     end
 
     def self.add_video(event, video)
@@ -100,6 +99,5 @@ module Bot::DiscordCommands
         @masterqueue[event.server.id].shift
       end
     end
-    
   end
 end
