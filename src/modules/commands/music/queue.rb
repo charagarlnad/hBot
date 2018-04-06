@@ -86,6 +86,8 @@ module Bot::DiscordCommands
         video[:bassboost] = true if bassboost
         video[:event] = event
 
+        add_video(event, video)
+
         event.channel.send_embed('Ok, adding to queue:') do |e|
           e.add_field(name: 'Added by:', value: video[:event].user.name, inline: true)
           e.add_field(name: 'Bass Boost:', value: 'Enabled', inline: true) unless video[:bassboost].nil?
@@ -97,7 +99,6 @@ module Bot::DiscordCommands
           e.color = 0x7289DA
         end
 
-        add_video(event, video)
       end
 
       sleep(@embedtimeout)
