@@ -76,6 +76,7 @@ module Bot::DiscordCommands
           video[:comment_count] = videos[index].comment_count
           video[:view_count] = videos[index].view_count
           video[:length] = videos[index].length
+          video[:event] = event
 
           event.bot.awaits.except!(:"reactleft#{emb.id}", :"reactright#{emb.id}", :"reactdelete#{emb.id}", :"reactcheckmark#{emb.id}")
 

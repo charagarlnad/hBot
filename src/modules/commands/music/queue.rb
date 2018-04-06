@@ -41,14 +41,24 @@ module Bot::DiscordCommands
           e.description = 'I am not in voice.'
           e.color = 0x7289DA
         end
-      elsif search.empty?
+      elsif search.empty? && event.message.attachments.empty?
         event.channel.send_embed do |e|
           e.description = 'A search is required.'
           e.color = 0x7289DA
         end
       else
         video = {}
-        if search.size == 1 && search.first.include?('http') && !search.first.include?('youtube.com')
+        if !event.message.attachments.empty?
+          video[:description] = 'N/A'
+          video[:title] = `youtube-dl --get-filename -o "%(title)s" #{event.message.attachments.first.url}`
+          video[:url] = event.message.attachments.first.url
+          video[:thumbnail_url] = event.bot.profile.avatar_url
+          video[:like_count] = 'N/A'
+          video[:dislike_count] = 'N/A'
+          video[:comment_count] = 'N/A'
+          video[:view_count] = 'N/A'
+          video[:length] = `youtube-dl -j #{event.message.attachments.first.url} | jq .duration`
+        elsif search.size == 1 && search.first.include?('http') && !search.first.include?('youtube.com')
           if `youtube-dl -j #{search.first}`.chomp == ''
             emb = event.channel.send_embed do |e|
               e.description = 'Invalid url.'
