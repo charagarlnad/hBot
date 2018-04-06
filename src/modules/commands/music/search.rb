@@ -13,11 +13,17 @@ module Bot::DiscordCommands
           e.description = 'I am not in voice.'
           e.color = 0x7289DA
         end
+
+        sleep(@embedtimeout)
+        emb.delete
       elsif search.empty?
         emb = event.channel.send_embed do |e|
           e.description = 'A search is required.'
           e.color = 0x7289DA
         end
+
+        sleep(@embedtimeout)
+        emb.delete
       else
         videos = Yt::Collections::Videos.new.where(q: search.join(' '), safe_search: 'none', order: 'relevance').take(8)
         index = 0

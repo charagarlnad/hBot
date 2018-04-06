@@ -2,8 +2,8 @@ module Bot::DiscordCommands
   module Music
     extend Discordrb::Commands::CommandContainer
     command :disconnect do |event|
-      if event.voice.nil?
-        emb = event.channel.send_embed do |e|
+      emb = if event.voice.nil?
+        event.channel.send_embed do |e|
           e.description = 'I am not in voice.'
           e.color = 0x7289DA
         end
@@ -12,7 +12,7 @@ module Bot::DiscordCommands
         event.voice.stop_playing
         event.voice.destroy
 
-        emb = event.channel.send_embed do |e|
+        event.channel.send_embed do |e|
           e.description = 'Disconnected.'
           e.color = 0x7289DA
         end

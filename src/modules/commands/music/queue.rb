@@ -4,23 +4,23 @@ module Bot::DiscordCommands
     @masterqueue = {}
     @embedtimeout = 30
     command :queue do |event|
-      if event.voice.nil?
-        emb = event.channel.send_embed do |e|
+      emb = if event.voice.nil?
+        event.channel.send_embed do |e|
           e.description = 'I am not in voice.'
           e.color = 0x7289DA
         end
       elsif event.voice.playing? == false
-        emb = event.channel.send_embed do |e|
+        event.channel.send_embed do |e|
           e.description = 'There is nothing playing.'
           e.color = 0x7289DA
         end
       elsif @masterqueue[event.server.id].empty?
-        emb = event.channel.send_embed do |e|
+        event.channel.send_embed do |e|
           e.description = 'There is nothing in the queue.'
           e.color = 0x7289DA
         end
       else
-        emb = event.channel.send_embed do |embed|
+        event.channel.send_embed do |embed|
           @masterqueue[event.server.id][0..24].each do |videohash|
             embed.add_field(name: videohash[:title], value: "added by: #{videohash[:event].user.name}, length: #{videohash[:length]}\n#{videohash[:description]}")
           end
@@ -35,36 +35,82 @@ module Bot::DiscordCommands
       emb.delete
     end
 
-    def self.add_video(event, video)
-      Thread.new do
-        @masterqueue[event.server.id] = [] if @masterqueue[event.server.id].nil?
-        video[:location] = 'data/musiccache/' + `youtube-dl --restrict-filenames --get-filename -o "%(title)s" #{video[:url]}`.chomp + '.mp4'
-        video[:event] = event
+    def self.play_video(event, search, bassboost=false)
+      emb = if event.voice.nil?
+        event.channel.send_embed do |e|
+          e.description = 'I am not in voice.'
+          e.color = 0x7289DA
+        end
+      elsif search.empty?
+        event.channel.send_embed do |e|
+          e.description = 'A search is required.'
+          e.color = 0x7289DA
+        end
+      else
+        video = {}
+        if search.size == 1 && search.first.include?('http') && !search.first.include?('youtube.com')
+          if `youtube-dl -j #{search.first}`.chomp == ''
+            emb = event.channel.send_embed do |e|
+              e.description = 'Invalid url.'
+              e.color = 0x7289DA
+            end
 
-        unless File.file?(video[:location])
-          video[:downloader] = Thread.new do
-            system("youtube-dl --restrict-filenames --format best --recode-video mp4 -o \"data/musiccache/%(title)s.%(ext)s\" #{video[:url]}")
+            sleep(@embedtimeout)
+            emb.delete
+            return nil
           end
+          video[:description] = 'N/A'
+          video[:title] = `youtube-dl --get-filename -o "%(title)s" #{search.first}`
+          video[:url] = search.first
+          video[:thumbnail_url] = event.bot.profile.avatar_url
+          video[:like_count] = 'N/A'
+          video[:dislike_count] = 'N/A'
+          video[:comment_count] = 'N/A'
+          video[:view_count] = 'N/A'
+          video[:length] = `youtube-dl -j #{search.first} | jq .duration`
+        else
+          query = Yt::Collections::Videos.new.where(q: search.join(' '), safe_search: 'none', order: 'relevance').first
+
+          sleep(0.05) while query.title.nil?
+
+          video[:description] = query.description
+          video[:title] = query.title
+          video[:url] = 'https://www.youtube.com/watch?v=' + query.id
+          video[:thumbnail_url] = query.thumbnail_url
+          video[:like_count] = query.like_count
+          video[:dislike_count] = query.dislike_count
+          video[:comment_count] = query.comment_count
+          video[:view_count] = query.view_count
+          video[:length] = query.length
         end
 
-        @masterqueue[event.server.id] << video
-        start_player(event) if @masterqueue[event.server.id].size == 1
+        add_video(event, video)
+
+        event.channel.send_embed('Ok, adding to queue:') do |e|
+          e.title = video[:title]
+          e.description = video[:description]
+          e.footer = Discordrb::Webhooks::EmbedFooter.new(text: "#{video[:like_count]} Likes, #{video[:dislike_count]} Dislikes, #{video[:view_count]} Views, #{video[:comment_count]} Comments", icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png')
+          e.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: video[:thumbnail_url])
+          e.url = video[:url]
+          e.color = 0x7289DA
+        end
       end
-      nil
+
+      sleep(@embedtimeout)
+      emb.delete
     end
 
-    def self.add_bassboost_video(event, video)
+    def self.add_video(event, video, bassboost=false)
       Thread.new do
         @masterqueue[event.server.id] = [] if @masterqueue[event.server.id].nil?
-        video[:location] = 'data/musiccache/bassboost-' + `youtube-dl --restrict-filenames --get-filename -o "%(title)s" #{video[:url]}`.chomp + '.mp4'
+        video[:location] = "data/musiccache/#{"bassboost-" if bassboost}#{`youtube-dl --restrict-filenames --get-filename -o "%(title)s" #{video[:url]}`.chomp}.mp4"
         video[:event] = event
+        video[:loop] = false
 
         unless File.file?(video[:location])
           video[:downloader] = Thread.new do
-            unless File.file?(video[:location].gsub('bassboost-', ''))
-              system("youtube-dl --restrict-filenames --format best --recode-video mp4 -o \"data/musiccache/%(title)s.%(ext)s\" #{video[:url]}")
-            end
-            system("ffmpeg -i #{video[:location].gsub('bassboost-', '')} -af bass=g=20:f=200 #{video[:location]}")
+            system("youtube-dl --restrict-filenames --format best --recode-video mp4 -o \"data/musiccache/%(title)s.%(ext)s\" #{video[:url]}") unless File.file?(video[:location].gsub('bassboost-', ''))
+            system("ffmpeg -i #{video[:location].gsub('bassboost-', '')} -af bass=g=20:f=200 #{video[:location]}") if bassboost
           end
         end
 
@@ -95,12 +141,11 @@ module Bot::DiscordCommands
         event.bot.listening = @masterqueue[event.server.id].first[:title]
         event.voice.play_file(@masterqueue[event.server.id].first[:location])
 
-        begin
-          emb.delete
-        end
+        emb.delete
 
         # File.delete(@masterqueue[event.server.id].first[:location])
-        @masterqueue[event.server.id].shift
+        break if @masterqueue[event.server.id].empty?
+        @masterqueue[event.server.id].shift unless @masterqueue[event.server.id].first[:loop]
       end
     end
   end
