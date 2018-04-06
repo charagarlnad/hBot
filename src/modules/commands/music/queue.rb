@@ -22,7 +22,7 @@ module Bot::DiscordCommands
       else
         event.channel.send_embed do |embed|
           @masterqueue[event.server.id][0..24].each do |videohash|
-            embed.add_field(name: videohash[:title], value: "added by: #{videohash[:event].user.name}, length: #{videohash[:length]}\n#{videohash[:description]}")
+            embed.add_field(name: videohash[:title], value: "added by: #{videohash[:event].user.name}, length: #{videohash[:length]}#{', bass boost enabled' unless videohash[:bassboost].nil?}\n#{videohash[:description]}")
           end
           embed.title = "**hBot Queue** - Video time: #{Time.at(event.voice.stream_time.to_i).utc.strftime('%H:%M:%S')}/#{@masterqueue[event.server.id].first[:length]}"
           embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: event.bot.profile.avatar_url)
@@ -83,10 +83,13 @@ module Bot::DiscordCommands
           video[:view_count] = query.view_count
           video[:length] = query.length
         end
+        video[:bassboost] = true if bassboost
 
         add_video(event, video)
 
         event.channel.send_embed('Ok, adding to queue:') do |e|
+          e.add_field(name: 'Added by:', value: video[:event].user.name, inline: true)
+          e.add_field(name: 'Bass Boost:', value: 'Enabled', inline: true) unless video[:bassboost].nil?
           e.title = video[:title]
           e.description = video[:description]
           e.footer = Discordrb::Webhooks::EmbedFooter.new(text: "#{video[:like_count]} Likes, #{video[:dislike_count]} Dislikes, #{video[:view_count]} Views, #{video[:comment_count]} Comments", icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png')
@@ -101,52 +104,54 @@ module Bot::DiscordCommands
     end
 
     def self.add_video(event, video, bassboost=false)
-      Thread.new do
-        @masterqueue[event.server.id] = [] if @masterqueue[event.server.id].nil?
-        video[:location] = "data/musiccache/#{"bassboost-" if bassboost}#{`youtube-dl --restrict-filenames --get-filename -o "%(title)s" #{video[:url]}`.chomp}.mp4"
-        video[:event] = event
-        video[:loop] = false
-
-        unless File.file?(video[:location])
-          video[:downloader] = Thread.new do
-            system("youtube-dl --restrict-filenames --format best --recode-video mp4 -o \"data/musiccache/%(title)s.%(ext)s\" #{video[:url]}") unless File.file?(video[:location].gsub('bassboost-', ''))
-            system("ffmpeg -i #{video[:location].gsub('bassboost-', '')} -af bass=g=20:f=200 #{video[:location]}") if bassboost
-          end
+      video[:location] = "data/musiccache/#{"bassboost-" if bassboost}#{`youtube-dl --restrict-filenames --get-filename -o "%(title)s" #{video[:url]}`.chomp}.mp4"
+      video[:event] = event
+      video[:loop] = false
+      
+      unless File.file?(video[:location])
+        video[:downloader] = Thread.new do
+          system("youtube-dl --restrict-filenames --format best --recode-video mp4 -o \"data/musiccache/%(title)s.%(ext)s\" #{video[:url]}") unless File.file?(video[:location].gsub('bassboost-', ''))
+          system("ffmpeg -i #{video[:location].gsub('bassboost-', '')} -af bass=g=20:f=200 #{video[:location]}") if video.location.include? '/bassboost'
         end
+      end
 
-        @masterqueue[event.server.id] << video
-        start_player(event) if @masterqueue[event.server.id].size == 1
+      @masterqueue[event.server.id] = [] if @masterqueue[event.server.id].nil?
+      @masterqueue[event.server.id] << video
+      start_player(event) if @masterqueue[event.server.id].size == 1
+    end
+
+    def self.start_player(event)
+      Thread.new do
+        until @masterqueue[event.server.id].empty?
+
+          unless @masterqueue[event.server.id].first[:downloader].nil?
+            until @masterqueue[event.server.id].first[:downloader].alive? == false
+              sleep(0.1)
+            end
+          end
+
+          emb = event.channel.send_embed('Now playing:') do |embed|
+            embed.add_field(name: 'Added by:', value: @masterqueue[event.server.id].first[:event].user.name, inline: true)
+            embed.add_field(name: 'Bass Boost:', value: 'Enabled', inline: true) unless @masterqueue[event.server.id].first[:bassboost].nil?
+            embed.description = @masterqueue[event.server.id].first[:description]
+            embed.title = @masterqueue[event.server.id].first[:title]
+            embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: @masterqueue[event.server.id].first[:thumbnail_url])
+            embed.footer = Discordrb::Webhooks::EmbedFooter.new(text: "#{@masterqueue[event.server.id].first[:like_count]} Likes, #{@masterqueue[event.server.id].first[:dislike_count]} Dislikes, #{@masterqueue[event.server.id].first[:view_count]} Views, #{@masterqueue[event.server.id].first[:comment_count]} Comments", icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png')
+            embed.url = @masterqueue[event.server.id].first[:url]
+            embed.color = 0x89DA72
+          end
+          event.bot.listening = @masterqueue[event.server.id].first[:title]
+          event.voice.play_file(@masterqueue[event.server.id].first[:location])
+
+          emb.delete
+
+          # File.delete(@masterqueue[event.server.id].first[:location])
+          break if @masterqueue[event.server.id].empty?
+          @masterqueue[event.server.id].shift unless @masterqueue[event.server.id].first[:loop]
+        end
       end
       nil
     end
 
-    def self.start_player(event)
-      until @masterqueue[event.server.id].empty?
-
-        unless @masterqueue[event.server.id].first[:downloader].nil?
-          until @masterqueue[event.server.id].first[:downloader].alive? == false
-            sleep(0.1)
-          end
-        end
-
-        emb = event.channel.send_embed('Now playing:') do |embed|
-          embed.add_field(name: 'Added by:', value: event.user.name)
-          embed.description = @masterqueue[event.server.id].first[:description]
-          embed.title = @masterqueue[event.server.id].first[:title]
-          embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: @masterqueue[event.server.id].first[:thumbnail_url])
-          embed.footer = Discordrb::Webhooks::EmbedFooter.new(text: "#{@masterqueue[event.server.id].first[:like_count]} Likes, #{@masterqueue[event.server.id].first[:dislike_count]} Dislikes, #{@masterqueue[event.server.id].first[:view_count]} Views, #{@masterqueue[event.server.id].first[:comment_count]} Comments", icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png')
-          embed.url = @masterqueue[event.server.id].first[:url]
-          embed.color = 0x89DA72
-        end
-        event.bot.listening = @masterqueue[event.server.id].first[:title]
-        event.voice.play_file(@masterqueue[event.server.id].first[:location])
-
-        emb.delete
-
-        # File.delete(@masterqueue[event.server.id].first[:location])
-        break if @masterqueue[event.server.id].empty?
-        @masterqueue[event.server.id].shift unless @masterqueue[event.server.id].first[:loop]
-      end
-    end
   end
 end

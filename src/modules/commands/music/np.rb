@@ -14,7 +14,8 @@ module Bot::DiscordCommands
         end
       else
         event.channel.send_embed do |embed|
-          embed.add_field(name: 'Added by:', value: event.user.name)
+          embed.add_field(name: 'Added by:', value: @masterqueue[event.server.id].first[:event].user.name, inline: true)
+          embed.add_field(name: 'Bass Boost:', value: 'Enabled', inline: true) unless @masterqueue[event.server.id].first[:bassboost].nil?
           embed.description = @masterqueue[event.server.id].first[:description]
           embed.title = @masterqueue[event.server.id].first[:title]
           embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: @masterqueue[event.server.id].first[:thumbnail_url])
