@@ -84,6 +84,7 @@ module Bot::DiscordCommands
           video[:length] = query.length
         end
         video[:bassboost] = true if bassboost
+        video[:event] = event
 
         event.channel.send_embed('Ok, adding to queue:') do |e|
           e.add_field(name: 'Added by:', value: video[:event].user.name, inline: true)
@@ -103,15 +104,14 @@ module Bot::DiscordCommands
       emb.delete
     end
 
-    def self.add_video(event, video, bassboost=false)
-      video[:location] = "data/musiccache/#{"bassboost-" if bassboost}#{`youtube-dl --restrict-filenames --get-filename -o "%(title)s" #{video[:url]}`.chomp}.mp4"
-      video[:event] = event
+    def self.add_video(event, video)
+      video[:location] = "data/musiccache/#{"bassboost-" if video[:bassboost]}#{`youtube-dl --restrict-filenames --get-filename -o "%(title)s" #{video[:url]}`.chomp}.mp4"
       video[:loop] = false
       
       unless File.file?(video[:location])
         video[:downloader] = Thread.new do
           system("youtube-dl --restrict-filenames --format best --recode-video mp4 -o \"data/musiccache/%(title)s.%(ext)s\" #{video[:url]}") unless File.file?(video[:location].gsub('bassboost-', ''))
-          system("ffmpeg -i #{video[:location].gsub('bassboost-', '')} -af bass=g=20:f=200 #{video[:location]}") if video.location.include? '/bassboost'
+          system("ffmpeg -i #{video[:location].gsub('bassboost-', '')} -af bass=g=20:f=200 #{video[:location]}") if video[:location].include? '/bassboost-'
         end
       end
 
