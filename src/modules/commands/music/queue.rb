@@ -1,7 +1,7 @@
 module Bot::DiscordCommands
   module Music
     extend Discordrb::Commands::CommandContainer
-    @masterqueue = {}
+    @masterqueue = Hash.new { |h, k| h[k] = [] }
     @embedtimeout = 30
     command :queue do |event|
       emb = if event.voice.nil?
@@ -85,8 +85,6 @@ module Bot::DiscordCommands
         end
         video[:bassboost] = true if bassboost
 
-        add_video(event, video)
-
         event.channel.send_embed('Ok, adding to queue:') do |e|
           e.add_field(name: 'Added by:', value: video[:event].user.name, inline: true)
           e.add_field(name: 'Bass Boost:', value: 'Enabled', inline: true) unless video[:bassboost].nil?
@@ -97,6 +95,8 @@ module Bot::DiscordCommands
           e.url = video[:url]
           e.color = 0x7289DA
         end
+
+        add_video(event, video)
       end
 
       sleep(@embedtimeout)
@@ -115,7 +115,6 @@ module Bot::DiscordCommands
         end
       end
 
-      @masterqueue[event.server.id] = [] if @masterqueue[event.server.id].nil?
       @masterqueue[event.server.id] << video
       start_player(event) if @masterqueue[event.server.id].size == 1
     end
