@@ -7,7 +7,7 @@ module Bot::DiscordCommands
     checkmark = "\u2714"
     trashcan = "\u{1f5D1}"
 
-    command :search do |event, *search|
+    command :search2 do |event, *search|
       if event.voice.nil?
         emb = event.channel.send_embed do |e|
           e.description = 'I am not in voice.'
@@ -25,16 +25,20 @@ module Bot::DiscordCommands
         sleep(@embedtimeout)
         emb.delete
       else
-        videos = Yt::Collections::Videos.new.where(q: search.join(' '), safe_search: 'none', order: 'relevance').take(8)
+        #videos = Yt::Collections::Videos.new.where(q: search.join(' '), safe_search: 'none', order: 'relevance').take(8)
+        videos = `youtube-dl --restrict-filenames --get-filename -o "data/musiccache/%(title)s" --dump-json \"ytsearch8:#{search.join(' ')}\"`.chomp.split("\n")
         index = 0
+        currvideo = {}
+        query = lambda { currvideo = JSON.parse(videos[(index * 2) + 1]).with_indifferent_access }
 
         newemb = lambda {
-          Discordrb::Webhooks::Embed.new title: videos[index].title,
-          description: videos[index].description,
-          footer: Discordrb::Webhooks::EmbedFooter.new(text: "#{videos[index].like_count} Likes, #{videos[index].dislike_count} Dislikes, #{videos[index].view_count} Views, #{videos[index].comment_count} Comments",
+          query.call
+          Discordrb::Webhooks::Embed.new title: currvideo[:title],
+          description: currvideo[:description][0..500] || 'N/A',
+          footer: Discordrb::Webhooks::EmbedFooter.new(text: "#{currvideo[:like_count] || 'N/A'} Likes, #{currvideo[:dislike_count] || 'N/A'} Dislikes, #{currvideo[:view_count] || 'N/A'} Views,  Comments",
           icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png'),
-          thumbnail: Discordrb::Webhooks::EmbedThumbnail.new(url: videos[index].thumbnail_url),
-          url: 'https://www.youtube.com/watch?v=' + videos[index].id,
+          thumbnail: Discordrb::Webhooks::EmbedThumbnail.new(url: if currvideo[:thumbnails] then currvideo[:thumbnails].first[:url] else event.bot.profile.avatar_url end),
+          url: currvideo[:webpage_url] || 'N/A',
           color: 0x7289DA
         }
 
@@ -67,17 +71,16 @@ module Bot::DiscordCommands
 
           video = {}
 
-          video[:description] = videos[index].description
-          video[:title] = videos[index].title
-          video[:url] = 'https://www.youtube.com/watch?v=' + videos[index].id
-          video[:thumbnail_url] = videos[index].thumbnail_url
-          video[:like_count] = videos[index].like_count
-          video[:dislike_count] = videos[index].dislike_count
-          video[:comment_count] = videos[index].comment_count
-          video[:view_count] = videos[index].view_count
-          video[:length] = videos[index].length
+          video[:description] = currvideo[:description] || 'N/A'
+          video[:title] = currvideo[:fulltitle] || 'N/A'
+          video[:url] = currvideo[:webpage_url] || 'N/A'
+          video[:thumbnail_url] = if currvideo[:thumbnails] then currvideo[:thumbnails].first[:url] else event.bot.profile.avatar_url end
+          video[:like_count] = currvideo[:like_count] || 'N/A'
+          video[:dislike_count] = currvideo[:dislike_count] || 'N/A'
+          video[:view_count] = currvideo[:view_count] || 'N/A'
+          video[:length] = currvideo[:duration] || 'N/A'
           video[:event] = event
-          video[:location] = "data/musiccache/#{`youtube-dl --restrict-filenames --get-filename -o "%(title)s" #{video[:url]}`.chomp}.mp4"
+          video[:location] = videos[(index * 2)] + '.mp4'
 
           event.bot.awaits.except!(:"reactleft#{emb.id}", :"reactright#{emb.id}", :"reactdelete#{emb.id}", :"reactcheckmark#{emb.id}")
 

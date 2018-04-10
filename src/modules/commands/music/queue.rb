@@ -49,13 +49,19 @@ module Bot::DiscordCommands
       else
         begin
           video = {}
-          if !event.message.attachments.empty?
-            query = JSON.parse(`youtube-dl --dump-json #{event.message.attachments.first.url}`.chomp).with_indifferent_access
+          vidsearch = if !event.message.attachments.empty?
+            event.message.attachments.first.url
           elsif search.size == 1 && search.first.include?('http') && !search.first.include?('youtube.com')
-            query = JSON.parse(`youtube-dl --dump-json #{search.first}`.chomp).with_indifferent_access
+            search.first
           else
-            query = JSON.parse(`youtube-dl --dump-json "ytsearch1:#{search.join(' ')}"`.chomp).with_indifferent_access
+            "\"ytsearch1:#{search.join(' ')}\""
           end
+
+          youtubedl = `youtube-dl --restrict-filenames --get-filename -o "data/musiccache/#{"bassboost-" if bassboost}%(title)s" --dump-json #{vidsearch}`.chomp.split("\n")
+          # https://github.com/rg3/youtube-dl/issues/13044 for multiple videos aka search
+
+          # Maybe pass the query object directly and handle nil objects at the player?
+          query = JSON.parse(youtubedl[1]).with_indifferent_access
           video[:description] = query[:description] || 'N/A'
           video[:title] = query[:fulltitle] || 'N/A'
           video[:url] = query[:webpage_url] || 'N/A'
@@ -64,6 +70,7 @@ module Bot::DiscordCommands
           video[:dislike_count] = query[:dislike_count] || 'N/A'
           video[:view_count] = query[:view_count] || 'N/A'
           video[:length] = query[:duration] || 'N/A'
+          video[:location] = youtubedl[0] + '.mp4'
           video[:bassboost] = bassboost
           video[:event] = event
 
@@ -94,7 +101,7 @@ module Bot::DiscordCommands
     end
 
     def self.add_video(event, video)
-      video[:location] = "data/musiccache/#{"bassboost-" if video[:bassboost]}#{`youtube-dl --restrict-filenames --get-filename -o "%(title)s" #{video[:url]}`.chomp}.mp4"
+      #video[:location] = "data/musiccache/#{"bassboost-" if video[:bassboost]}#{`youtube-dl --restrict-filenames --get-filename -o "%(title)s" #{video[:url]}`.chomp}.mp4"
       video[:loop] = false
       
       unless File.file?(video[:location])
