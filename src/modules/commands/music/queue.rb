@@ -39,74 +39,52 @@ module Bot::DiscordCommands
       emb = if event.voice.nil?
         event.channel.send_embed do |e|
           e.description = 'I am not in voice.'
-          e.color = 0x7289DA
+          e.color = 0xDA7289
         end
       elsif search.empty? && event.message.attachments.empty?
         event.channel.send_embed do |e|
           e.description = 'A search is required.'
-          e.color = 0x7289DA
+          e.color = 0xDA7289
         end
       else
-        video = {}
-        if !event.message.attachments.empty?
-          video[:description] = 'N/A'
-          video[:title] = `youtube-dl --get-filename -o "%(title)s" #{event.message.attachments.first.url}`
-          video[:url] = event.message.attachments.first.url
-          video[:thumbnail_url] = event.bot.profile.avatar_url
-          video[:like_count] = 'N/A'
-          video[:dislike_count] = 'N/A'
-          video[:comment_count] = 'N/A'
-          video[:view_count] = 'N/A'
-          video[:length] = `youtube-dl -j #{event.message.attachments.first.url} | jq .duration`
-        elsif search.size == 1 && search.first.include?('http') && !search.first.include?('youtube.com')
-          if `youtube-dl -j #{search.first}`.chomp == ''
-            emb = event.channel.send_embed do |e|
-              e.description = 'Invalid url.'
-              e.color = 0x7289DA
-            end
-
-            sleep(@embedtimeout)
-            emb.delete
-            return nil
+        begin
+          video = {}
+          if !event.message.attachments.empty?
+            query = JSON.parse(`youtube-dl --dump-json #{event.message.attachments.first.url}`.chomp).with_indifferent_access
+          elsif search.size == 1 && search.first.include?('http') && !search.first.include?('youtube.com')
+            query = JSON.parse(`youtube-dl --dump-json #{search.first}`.chomp).with_indifferent_access
+          else
+            query = JSON.parse(`youtube-dl --dump-json "ytsearch1:#{search.join(' ')}"`.chomp).with_indifferent_access
           end
-          video[:description] = 'N/A'
-          video[:title] = `youtube-dl --get-filename -o "%(title)s" #{search.first}`
-          video[:url] = search.first
-          video[:thumbnail_url] = event.bot.profile.avatar_url
-          video[:like_count] = 'N/A'
-          video[:dislike_count] = 'N/A'
-          video[:comment_count] = 'N/A'
-          video[:view_count] = 'N/A'
-          video[:length] = `youtube-dl -j #{search.first} | jq .duration`
-        else
-          query = Yt::Collections::Videos.new.where(q: search.join(' '), safe_search: 'none', order: 'relevance').first
+          video[:description] = query[:description] || 'N/A'
+          video[:title] = query[:fulltitle] || 'N/A'
+          video[:url] = query[:webpage_url] || 'N/A'
+          video[:thumbnail_url] = if query[:thumbnails] then query[:thumbnails].first[:url] else event.bot.profile.avatar_url end
+          video[:like_count] = query[:like_count] || 'N/A'
+          video[:dislike_count] = query[:dislike_count] || 'N/A'
+          video[:view_count] = query[:view_count] || 'N/A'
+          video[:length] = query[:duration] || 'N/A'
+          video[:bassboost] = bassboost
+          video[:event] = event
 
-          sleep(0.05) while query.title.nil?
+          add_video(event, video)
 
-          video[:description] = query.description
-          video[:title] = query.title
-          video[:url] = 'https://www.youtube.com/watch?v=' + query.id
-          video[:thumbnail_url] = query.thumbnail_url
-          video[:like_count] = query.like_count
-          video[:dislike_count] = query.dislike_count
-          video[:comment_count] = query.comment_count
-          video[:view_count] = query.view_count
-          video[:length] = query.length
-        end
-        video[:bassboost] = true if bassboost
-        video[:event] = event
-
-        add_video(event, video)
-
-        event.channel.send_embed('Ok, adding to queue:') do |e|
-          e.add_field(name: 'Added by:', value: video[:event].user.name, inline: true)
-          e.add_field(name: 'Bass Boost:', value: 'Enabled', inline: true) unless video[:bassboost].nil?
-          e.title = video[:title]
-          e.description = video[:description]
-          e.footer = Discordrb::Webhooks::EmbedFooter.new(text: "#{video[:like_count]} Likes, #{video[:dislike_count]} Dislikes, #{video[:view_count]} Views, #{video[:comment_count]} Comments", icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png')
-          e.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: video[:thumbnail_url])
-          e.url = video[:url]
-          e.color = 0x7289DA
+          event.channel.send_embed('Ok, adding to queue:') do |e|
+            e.add_field(name: 'Added by:', value: video[:event].user.name, inline: true)
+            e.add_field(name: 'Bass Boost:', value: 'Enabled', inline: true) if video[:bassboost]
+            e.title = video[:title]
+            e.description = video[:description]
+            e.footer = Discordrb::Webhooks::EmbedFooter.new(text: "#{video[:like_count]} Likes, #{video[:dislike_count]} Dislikes, #{video[:view_count]} Views, #{video[:comment_count]} Comments", icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png')
+            e.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: video[:thumbnail_url])
+            e.url = video[:url]
+            e.color = 0x7289DA
+          end
+        rescue => error
+          event.channel.send_embed do |e|
+            e.description = 'Invalid file/url.'
+            e.add_field(name: 'Tell a developer:', value: "#{error.class};\n#{error}", inline: true)
+            e.color = 0xDA7289
+          end
         end
 
       end
