@@ -1,0 +1,38 @@
+Metrics/LineLength:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Layout/EndOfLine:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/AbcSize:
+  Enabled: false
+
+Style/NumericLiterals:
+  Enabled: false
+
+Layout/AlignHash:
+  Enabled: false
+
+Layout/BlockAlignment:
+  Enabled: false
+
+Layout/EndAlignment:
+  Enabled: false
+
+Layout/ElseAlignment:
+  Enabled: false
+
+Layout/IndentationWidth:
+  Enabled: false
