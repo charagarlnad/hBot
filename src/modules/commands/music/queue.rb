@@ -3,24 +3,43 @@ module Bot::DiscordCommands
     extend Discordrb::Commands::CommandContainer
     @masterqueue = Hash.new { |h, k| h[k] = [] }
     @embedtimeout = 30
+    @newemb = lambda { |event, color, video=@masterqueue[event.server.id].first|
+      Discordrb::Webhooks::Embed.new title: video[:title],
+      description: video[:description],
+      footer: Discordrb::Webhooks::EmbedFooter.new(text: "#{video[:like_count]} Likes, #{video[:dislike_count]} Dislikes, #{video[:view_count]} Views, #{video[:comment_count]} Comments", icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png'),
+      thumbnail: Discordrb::Webhooks::EmbedThumbnail.new(url: video[:thumbnail_url]),
+      url: video[:url],
+      color: color
+    }
+
+    def self.catch_args(event, *args)
+      args.each do |arg|
+        error = case arg
+                when :in_voice then 'I am not in voice.' if event.voice.nil?
+                when :playing then 'There is nothing playing.' unless event.voice.playing?
+                when :queue_not_empty then 'There is nothing in the queue.' if @masterqueue[event.server.id].empty?
+                when :has_arguments_or_attachment then 'A search or attachment is required.' if event.content.split(' ').size == 1 && event.message.attachments.empty?
+                when :has_arguments then 'A search is required.' if event.content.split(' ').size == 1 
+                else nil
+                end
+        if error
+          emb = event.channel.send_embed do |e|
+            e.description = error
+            e.color = 0x7289DA
+          end
+          sleep(@embedtimeout)
+          emb.delete
+          return false
+
+        end
+      end
+
+      true
+    end
+
     command :queue do |event|
-      emb = if event.voice.nil?
-        event.channel.send_embed do |e|
-          e.description = 'I am not in voice.'
-          e.color = 0x7289DA
-        end
-      elsif event.voice.playing? == false
-        event.channel.send_embed do |e|
-          e.description = 'There is nothing playing.'
-          e.color = 0x7289DA
-        end
-      elsif @masterqueue[event.server.id].empty?
-        event.channel.send_embed do |e|
-          e.description = 'There is nothing in the queue.'
-          e.color = 0x7289DA
-        end
-      else
-        event.channel.send_embed do |embed|
+      if catch_args(event, :in_voice, :queue_not_empty)
+        emb = event.channel.send_embed do |embed|
           @masterqueue[event.server.id][0..24].each do |videohash|
             embed.add_field(name: videohash[:title], value: "added by: #{videohash[:event].user.name}, length: #{videohash[:length]}#{', bass boost enabled' unless videohash[:bassboost].nil?}\n#{videohash[:description]}")
           end
@@ -29,38 +48,24 @@ module Bot::DiscordCommands
           embed.footer = Discordrb::Webhooks::EmbedFooter.new(text: @masterqueue[event.server.id].count.to_s + ' videos in queue.')
           embed.color = 0x7289DA
         end
+        sleep(@embedtimeout)
+        emb.delete
       end
-
-      sleep(@embedtimeout)
-      emb.delete
     end
 
     def self.play_video(event, search, bassboost=false)
-      emb = if event.voice.nil?
-        event.channel.send_embed do |e|
-          e.description = 'I am not in voice.'
-          e.color = 0xDA7289
-        end
-      elsif search.empty? && event.message.attachments.empty?
-        event.channel.send_embed do |e|
-          e.description = 'A search is required.'
-          e.color = 0xDA7289
-        end
-      else
-        begin
+      if catch_args(event, :in_voice, :has_arguments_or_attachment)
+        emb = begin
           video = {}
           vidsearch = if !event.message.attachments.empty?
             event.message.attachments.first.url
-          elsif search.size == 1 && search.first.include?('http') && !search.first.include?('youtube.com')
+          elsif search.size == 1 && search.first.start_with?('http')
             search.first
           else
             "\"ytsearch1:#{search.join(' ')}\""
           end
 
           youtubedl = `youtube-dl --restrict-filenames --get-filename -o "data/musiccache/#{"bassboost-" if bassboost}%(title)s" --dump-json #{vidsearch}`.chomp.split("\n")
-          # https://github.com/rg3/youtube-dl/issues/13044 for multiple videos aka search
-
-          # Maybe pass the query object directly and handle nil objects at the player?
           query = JSON.parse(youtubedl[1]).with_indifferent_access
           video[:description] = query[:description] || 'N/A'
           video[:title] = query[:fulltitle] || 'N/A'
@@ -76,16 +81,7 @@ module Bot::DiscordCommands
 
           add_video(event, video)
 
-          event.channel.send_embed('Ok, adding to queue:') do |e|
-            e.add_field(name: 'Added by:', value: video[:event].user.name, inline: true)
-            e.add_field(name: 'Bass Boost:', value: 'Enabled', inline: true) if video[:bassboost]
-            e.title = video[:title]
-            e.description = video[:description]
-            e.footer = Discordrb::Webhooks::EmbedFooter.new(text: "#{video[:like_count]} Likes, #{video[:dislike_count]} Dislikes, #{video[:view_count]} Views, #{video[:comment_count]} Comments", icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png')
-            e.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: video[:thumbnail_url])
-            e.url = video[:url]
-            e.color = 0x7289DA
-          end
+          event.channel.send_embed('Ok, adding to queue:', @newemb.call(event, 0x7289DA))
         rescue => error
           event.channel.send_embed do |e|
             e.description = 'Invalid file/url.'
@@ -93,15 +89,13 @@ module Bot::DiscordCommands
             e.color = 0xDA7289
           end
         end
+        sleep(@embedtimeout)
+        emb.delete
 
       end
-
-      sleep(@embedtimeout)
-      emb.delete
     end
 
     def self.add_video(event, video)
-      #video[:location] = "data/musiccache/#{"bassboost-" if video[:bassboost]}#{`youtube-dl --restrict-filenames --get-filename -o "%(title)s" #{video[:url]}`.chomp}.mp4"
       video[:loop] = false
       
       unless File.file?(video[:location])
@@ -125,22 +119,12 @@ module Bot::DiscordCommands
             end
           end
 
-          emb = event.channel.send_embed('Now playing:') do |embed|
-            embed.add_field(name: 'Added by:', value: @masterqueue[event.server.id].first[:event].user.name, inline: true)
-            embed.add_field(name: 'Bass Boost:', value: 'Enabled', inline: true) unless @masterqueue[event.server.id].first[:bassboost].nil?
-            embed.description = @masterqueue[event.server.id].first[:description]
-            embed.title = @masterqueue[event.server.id].first[:title]
-            embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: @masterqueue[event.server.id].first[:thumbnail_url])
-            embed.footer = Discordrb::Webhooks::EmbedFooter.new(text: "#{@masterqueue[event.server.id].first[:like_count]} Likes, #{@masterqueue[event.server.id].first[:dislike_count]} Dislikes, #{@masterqueue[event.server.id].first[:view_count]} Views, #{@masterqueue[event.server.id].first[:comment_count]} Comments", icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png')
-            embed.url = @masterqueue[event.server.id].first[:url]
-            embed.color = 0x89DA72
-          end
+          emb = event.channel.send_embed('Now playing:', @newemb.call(event, 0x89DA72))
           event.bot.listening = @masterqueue[event.server.id].first[:title]
           event.voice.play_file(@masterqueue[event.server.id].first[:location])
 
           emb.delete
 
-          # File.delete(@masterqueue[event.server.id].first[:location])
           break if @masterqueue[event.server.id].empty?
           @masterqueue[event.server.id].shift unless @masterqueue[event.server.id].first[:loop]
         end
