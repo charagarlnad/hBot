@@ -3,3 +3,9 @@ class String
      /\A[-+]?\d+\z/ === self
   end
 end
+
+class NilClass
+  def is_i?
+     false
+  end
+end

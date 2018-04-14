@@ -11,7 +11,7 @@ require 'mediawiki-butt'
 require 'nokogiri'
 require 'streamio-ffmpeg'
 require 'filesize'
-require 'active_support/core_ext/hash/indifferent_access'
+require 'active_support/core_ext/hash'
 
 # The main bot module.
 module Bot

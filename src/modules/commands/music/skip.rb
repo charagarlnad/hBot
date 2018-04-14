@@ -1,27 +1,13 @@
 module Bot::DiscordCommands
   module Music
     extend Discordrb::Commands::CommandContainer
-    command :skip do |event|
-      emb = if event.voice.nil?
-        event.channel.send_embed do |e|
-          e.description = 'I am not in voice.'
-          e.color = 0x7289DA
-        end
-      elsif event.voice.playing? == false
-        event.channel.send_embed do |e|
-          e.description = 'There is nothing playing.'
-          e.color = 0x7289DA
-        end
-      else
-        event.voice.stop_playing
-        event.channel.send_embed do |e|
-          e.description = 'Ok, skipping video.'
-          e.color = 0x7289DA
-        end
+    command(:skip, in_voice: true, playing: true) do |event|
+      event.voice.stop_playing
+      event.send_timed_embed do |e|
+        e.description = 'Ok, skipping video.'
+        e.color = 0x7289DA
       end
 
-      sleep(@embedtimeout)
-      emb.delete
     end
   end
 end

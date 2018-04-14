@@ -1,7 +1,7 @@
 module Bot::DiscordCommands
   module Music
     extend Discordrb::Commands::CommandContainer
-    command :play do |event, *search|
+    command(:play, in_voice: true, has_arguments_or_attachment: true) do |event, *search|
       play_video(event, search)
     end
   end
