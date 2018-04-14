@@ -1,7 +1,7 @@
 module Bot::DiscordCommands
   module Music
     extend Discordrb::Commands::CommandContainer
-    command(:disconnect, in_voice: true) do |event|
+    command(:disconnect, requirements: [:in_voice]) do |event|
       $masterqueue[event.server.id].clear unless $masterqueue[event.server.id].nil?
       event.voice.stop_playing
       event.voice.destroy

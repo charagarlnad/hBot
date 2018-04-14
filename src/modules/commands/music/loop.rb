@@ -1,7 +1,7 @@
 module Bot::DiscordCommands
   module Music
     extend Discordrb::Commands::CommandContainer
-    command(:loop, in_voice: true, playing: true) do |event|
+    command(:loop, requirements: [:in_voice, :playing]) do |event|
       if $masterqueue[event.server.id].first[:loop]
         $masterqueue[event.server.id].first[:loop] = false
         event.send_timed_embed do |e|

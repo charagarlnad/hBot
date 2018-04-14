@@ -12,7 +12,7 @@ module Bot::DiscordCommands
       color: color
     }
 
-    command(:queue, in_voice: true, queue_not_empty: true) do |event|
+    command(:queue, requirements: [:in_voice, :queue_not_empty]) do |event|
       event.send_timed_embed do |embed|
         $masterqueue[event.server.id][0..24].each do |videohash|
           embed.add_field(name: videohash[:title], value: "added by: #{videohash[:event].user.name}, length: #{videohash[:length]}#{', bass boost enabled' unless videohash[:bassboost].nil?}\n#{videohash[:description]}")

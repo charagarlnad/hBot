@@ -50,17 +50,13 @@ module Discordrb::Commands
         bucket: attributes[:bucket],
 
         # Block for handling internal exceptions, or a string to respond with
-        rescue: attributes[:rescue]
+        rescue: attributes[:rescue],
+
+        ### start additon
+        requirements: attributes[:requirements] || []
+        ### end additon
 
       }
-      # start additon
-      @attributes[:in_voice] = attributes[:in_voice] if attributes[:in_voice]
-      @attributes[:playing] = attributes[:playing] if attributes[:playing]
-      @attributes[:queue_not_empty] = attributes[:queue_not_empty] if attributes[:queue_not_empty]
-      @attributes[:has_arguments_or_attachmen] = attributes[:has_arguments_or_attachmen] if attributes[:has_arguments_or_attachmen]
-      @attributes[:has_arguments] = attributes[:has_arguments] if attributes[:has_arguments]
-      @attributes[:arguments_is_int] = attributes[:arguments_is_int] if attributes[:arguments_is_int]
-      # end addition
 
       @block = block
     end
@@ -76,8 +72,8 @@ module Discordrb::Commands
         event.respond "Usage: `#{@attributes[:usage]}`" if @attributes[:usage]
         return
       end
-      # begin additon
-      @attributes.each do |arg, value|
+      ### begin additon
+      @attributes[:requirements].each do |arg|
         error = case arg
                 when :in_voice then 'I am not in voice.' if event.voice.nil?
                 when :playing then 'There is nothing playing.' unless event.voice.playing?
@@ -96,7 +92,7 @@ module Discordrb::Commands
 
         end
       end
-      # end additon
+      ### end additon
       unless @attributes[:chain_usable]
         if chained
           event.respond "Command `#{name}` cannot be used in a command chain!"

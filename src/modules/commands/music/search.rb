@@ -7,7 +7,7 @@ module Bot::DiscordCommands
     checkmark = "\u2714"
     trashcan = "\u{1f5D1}"
 
-    command(:search, in_voice: true, has_arguments: true) do |event, *search|
+    command(:search, requirements: [:in_voice, :has_arguments]) do |event, *search|
       videos = []
       index = 0
       Thread.new do

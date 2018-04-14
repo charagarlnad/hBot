@@ -1,7 +1,7 @@
 module Bot::DiscordCommands
   module Music
     extend Discordrb::Commands::CommandContainer
-    command(:np, in_voice: true, playing: true) do |event|
+    command(:np, requirements: [:in_voice, :playing]) do |event|
       event.send_timed_embed do |embed|
         embed.add_field(name: 'Added by:', value: $masterqueue[event.server.id].first[:event].user.name, inline: true)
         embed.add_field(name: 'Bass Boost:', value: 'Enabled', inline: true) unless $masterqueue[event.server.id].first[:bassboost].nil?
