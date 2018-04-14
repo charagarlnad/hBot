@@ -9,9 +9,9 @@ require 'opencv'
 require 'faker'
 require 'mediawiki-butt'
 require 'nokogiri'
-require 'yt'
 require 'streamio-ffmpeg'
 require 'filesize'
+require 'active_support/core_ext/hash/indifferent_access'
 
 # The main bot module.
 module Bot
@@ -26,10 +26,6 @@ module Bot
   # can access the cache anywhere.
   # newlines are for nerds, I throw everything on one line, fuck off rubocop
   BOT = Discordrb::Commands::CommandBot.new(client_id: CONFIG.client_id, token: CONFIG.token, prefix: CONFIG.prefix, help_available: false, no_permission_message: '') # log_mode: :debug
-
-  Yt.configure do |config|
-    config.api_key = CONFIG.youtube_token
-  end
 
   # This class method wraps the module lazy-loading process of discordrb command
   # and event modules. Any module name passed to this method will have its child

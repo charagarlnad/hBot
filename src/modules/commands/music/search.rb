@@ -9,21 +9,32 @@ module Bot::DiscordCommands
 
     command :search do |event, *search|
       if catch_args(event, :in_voice, :has_arguments)
-        videos = Yt::Collections::Videos.new.where(q: search.join(' '), safe_search: 'none', order: 'relevance').take(8)
+        videos = []
         index = 0
+        Thread.new do
+          IO.popen("youtube-dl --restrict-filenames --get-filename -o \"data/musiccache/%(title)s\" --dump-json \"ytsearch8:#{search.join(' ')}\"") do |pipe|
+            while output = pipe.gets
+              videos << output
+            end
+          end
+        end
+        
         query = lambda { 
+          until videos.size >= (index * 2) + 1 do
+            sleep(0.1)
+          end
+          currvideo = JSON.parse(videos[(index * 2) + 1]).with_indifferent_access
           video = {}
-          video[:description] = videos[index].description
-          video[:title] = videos[index].title
-          video[:url] = 'https://www.youtube.com/watch?v=' + videos[index].id
-          video[:thumbnail_url] = videos[index].thumbnail_url
-          video[:like_count] = videos[index].like_count
-          video[:dislike_count] = videos[index].dislike_count
-          video[:comment_count] = videos[index].comment_count
-          video[:view_count] = videos[index].view_count
-          video[:length] = videos[index].length
+          video[:description] = currvideo[:description] || 'N/A'
+          video[:title] = currvideo[:fulltitle] || 'N/A'
+          video[:url] = currvideo[:webpage_url] || 'N/A'
+          video[:thumbnail_url] = if currvideo[:thumbnails] then currvideo[:thumbnails].first[:url] else event.bot.profile.avatar_url end
+          video[:like_count] = currvideo[:like_count] || 'N/A'
+          video[:dislike_count] = currvideo[:dislike_count] || 'N/A'
+          video[:view_count] = currvideo[:view_count] || 'N/A'
+          video[:length] = currvideo[:duration] || 'N/A'
           video[:event] = event
-          video[:location] = "data/musiccache/#{`youtube-dl --restrict-filenames --get-filename -o "%(title)s" #{video[:url]}`.chomp}.mp4"
+          video[:location] = videos[(index * 2)] + '.mp4'
           video
         }
 

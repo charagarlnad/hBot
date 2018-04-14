@@ -5,7 +5,7 @@ module Bot::DiscordCommands
     @embedtimeout = 30
     @newemb = lambda { |event, color, video=@masterqueue[event.server.id].first|
       Discordrb::Webhooks::Embed.new title: video[:title],
-      description: video[:description],
+      description: video[:description][0..1023],
       footer: Discordrb::Webhooks::EmbedFooter.new(text: "#{video[:like_count]} Likes, #{video[:dislike_count]} Dislikes, #{video[:view_count]} Views, #{video[:comment_count]} Comments", icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png'),
       thumbnail: Discordrb::Webhooks::EmbedThumbnail.new(url: video[:thumbnail_url]),
       url: video[:url],
