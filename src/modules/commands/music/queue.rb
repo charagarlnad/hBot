@@ -2,9 +2,9 @@ module Bot::DiscordCommands
   module Music
     extend Discordrb::Commands::CommandContainer
     $masterqueue = Hash.new { |h, k| h[k] = [] }
-    @embedtimeout = 30
+    @embedtimeout = 30.freeze
 
-    @newemb = lambda { |event, color, video=$masterqueue[event.server.id].first|
+    @newemb = lambda { |event, color: $normalcolor, video: $masterqueue[event.server.id].first|
       Discordrb::Webhooks::Embed.new title: video[:title],
       description: video[:description][0..1023],
       fields: [Discordrb::Webhooks::EmbedField.new(name: 'Video info', value: "#{video[:like_count]}<:likes:434777642353295371> / #{video[:dislike_count]}<:dislikes:434777663929057290>, #{video[:view_count]} Views, Length: #{self.seconds_to_str(video[:length])}#{', Bass Boost enabled' if video[:bassboost]}")],
@@ -13,8 +13,8 @@ module Bot::DiscordCommands
       color: color
     }
     
-    @query = lambda { |ytdl, event, bassboost=false, search=false, index=0|
-      if search
+    @query = lambda { |ytdl, event, bassboost: false, index: nil|
+      if index
         sleep(0.1) until ytdl.length >= index + 1
         currvideo = JSON.parse(ytdl[index]).with_indifferent_access
       else
@@ -68,9 +68,9 @@ module Bot::DiscordCommands
 
         youtubedl = `youtube-dl --restrict-filenames -o "data/musiccache/#{"bassboost-" if bassboost}%(title)s" --dump-json #{vidsearch}`
 
-        add_video(event, @query.call(youtubedl, event, bassboost))
+        add_video(event, @query.call(youtubedl, event, bassboost: bassboost))
 
-        event.send_timed_embed('Ok, adding to queue:', @newemb.call(event, 0x7289DA))
+        event.send_timed_embed('Ok, adding to queue:', @newemb.call(event))
       rescue => error
         event.send_timed_embed do |embed|
           embed.description = 'Invalid file/search.'
@@ -101,7 +101,7 @@ module Bot::DiscordCommands
             sleep(0.1) while $masterqueue[event.server.id].first[:downloader].alive?
           end
 
-          emb = event.channel.send_embed('Now playing:', @newemb.call(event, 0x89DA72))
+          emb = event.channel.send_embed('Now playing:', @newemb.call(event, color: $othercolor))
           event.bot.listening = $masterqueue[event.server.id].first[:title]
           event.voice.play_file($masterqueue[event.server.id].first[:location])
 
