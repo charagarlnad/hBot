@@ -11,41 +11,22 @@ module Bot::DiscordCommands
       videos = []
       index = 0
       Thread.new do
-        IO.popen("youtube-dl --restrict-filenames --get-filename -o \"data/musiccache/%(title)s\" --dump-json \"ytsearch8:#{search.join(' ')}\"") do |pipe|
+        IO.popen("youtube-dl --restrict-filenames -o \"data/musiccache/%(title)s\" --dump-json \"ytsearch8:#{search.join(' ')}\"") do |pipe|
           while output = pipe.gets
             videos << output
           end
         end
       end
-      
-      query = lambda { 
-        until videos.size >= (index * 2) + 1 do
-          sleep(0.1)
-        end
-        currvideo = JSON.parse(videos[(index * 2) + 1]).with_indifferent_access
-        video = {}
-        video[:description] = currvideo[:description] || 'N/A'
-        video[:title] = currvideo[:fulltitle] || 'N/A'
-        video[:url] = currvideo[:webpage_url] || 'N/A'
-        video[:thumbnail_url] = if currvideo[:thumbnails] then currvideo[:thumbnails].first[:url] else event.bot.profile.avatar_url end
-        video[:like_count] = currvideo[:like_count] || 'N/A'
-        video[:dislike_count] = currvideo[:dislike_count] || 'N/A'
-        video[:view_count] = currvideo[:view_count] || 'N/A'
-        video[:length] = currvideo[:duration] || 'N/A'
-        video[:event] = event
-        video[:location] = videos[(index * 2)].chomp + '.mp4'
-        video
-      }
 
-      emb = event.channel.send_embed("Video #{index + 1}:", @newemb.call(event, 0x7289DA, query.call))
+      emb = event.channel.send_embed("Video #{index + 1}:", @newemb.call(event, 0x7289DA, @query.call(videos, event, false, true, index)))
 
       event.bot.add_await(:"reactleft#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: leftarrow, from: event.author, message: emb) do
         emb.delete_reaction(event.author, leftarrow)
         if index - 1 >= 0
           index -= 1
-          emb.edit("Video #{index + 1}:", @newemb.call(event, 0x7289DA, query.call))
+          emb.edit("Video #{index + 1}:", @newemb.call(event, 0x7289DA, @query.call(videos, event, false, true, index)))
         else
-          emb.edit("Video #{index + 1} (no more videos):", @newemb.call(event, 0x7289DA, query.call))
+          emb.edit("Video #{index + 1} (no more videos):", @newemb.call(event, 0x7289DA, @query.call(videos, event, false, true, index)))
         end
         false
       end
@@ -54,19 +35,19 @@ module Bot::DiscordCommands
         emb.delete_reaction(event.author, rightarrow)
         if index + 1 <= 7
           index += 1
-          emb.edit("Video #{index + 1}:", @newemb.call(event, 0x7289DA, query.call))
+          emb.edit("Video #{index + 1}:", @newemb.call(event, 0x7289DA, @query.call(videos, event, false, true, index)))
         else
-          emb.edit("Video #{index + 1} (no more videos):", @newemb.call(event, 0x7289DA, query.call))
+          emb.edit("Video #{index + 1} (no more videos):", @newemb.call(event, 0x7289DA, @query.call(videos, event, false, true, index)))
         end
         false # false keeps alive the await
       end
 
       event.bot.add_await(:"reactcheckmark#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: checkmark, from: event.author, message: emb) do
-        emb.edit('Ok, adding video:', @newemb.call(event, 0x7289DA, query.call))
+        emb.edit('Ok, adding video:', @newemb.call(event, 0x7289DA, @query.call(videos, event, false, true, index)))
 
         event.bot.awaits.except!(:"reactleft#{emb.id}", :"reactright#{emb.id}", :"reactdelete#{emb.id}", :"reactcheckmark#{emb.id}")
 
-        add_video(event, query.call)
+        add_video(event, @query.call(videos, event, false, true, index))
 
         sleep(@embedtimeout)
         emb.delete

@@ -3,30 +3,62 @@ module Bot::DiscordCommands
     extend Discordrb::Commands::CommandContainer
     $masterqueue = Hash.new { |h, k| h[k] = [] }
     @embedtimeout = 30
+
     @newemb = lambda { |event, color, video=$masterqueue[event.server.id].first|
       Discordrb::Webhooks::Embed.new title: video[:title],
       description: video[:description][0..1023],
-      footer: Discordrb::Webhooks::EmbedFooter.new(text: "#{video[:like_count]} Likes, #{video[:dislike_count]} Dislikes, #{video[:view_count]} Views, #{video[:comment_count]} Comments", icon_url: 'http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c545.png'),
+      fields: [Discordrb::Webhooks::EmbedField.new(name: 'Video info', value: "#{video[:like_count]}<:likes:434777642353295371> / #{video[:dislike_count]}<:dislikes:434777663929057290>, #{video[:view_count]} Views, Length: #{self.seconds_to_str(video[:length])}#{', Bass Boost enabled' if video[:bassboost]}")],
       thumbnail: Discordrb::Webhooks::EmbedThumbnail.new(url: video[:thumbnail_url]),
       url: video[:url],
       color: color
+    }
+    
+    @query = lambda { |ytdl, event, bassboost=false, search=false, index=0|
+      if search
+        until ytdl.size >= index + 1 do
+          sleep(0.1)
+        end
+        currvideo = JSON.parse(ytdl[index]).with_indifferent_access
+      else
+        currvideo = JSON.parse(ytdl).with_indifferent_access
+      end
+      video = {}
+      video[:description] = currvideo[:description] || 'N/A'
+      video[:title] = currvideo[:fulltitle] || 'N/A'
+      video[:url] = currvideo[:webpage_url] || 'N/A'
+      video[:thumbnail_url] = if currvideo[:thumbnails] then currvideo[:thumbnails].first[:url] else event.bot.profile.avatar_url end
+      video[:like_count] = currvideo[:like_count] || 'N/A'
+      video[:dislike_count] = currvideo[:dislike_count] || 'N/A'
+      video[:view_count] = currvideo[:view_count] || 'N/A'
+      video[:length] = currvideo[:duration] || 0
+      video[:location] = currvideo[:_filename] + '.mp4'
+      video[:bassboost] = bassboost
+      video[:event] = event
+      video
     }
 
     command(:queue, requirements: [:in_voice, :queue_not_empty]) do |event|
       event.send_timed_embed do |embed|
         $masterqueue[event.server.id][0..24].each do |videohash|
-          embed.add_field(name: videohash[:title], value: "added by: #{videohash[:event].user.name}, length: #{videohash[:length]}#{', bass boost enabled' unless videohash[:bassboost].nil?}\n#{videohash[:description]}")
+          embed.add_field(name: videohash[:title], value: "added by: #{videohash[:event].user.name}, length: #{seconds_to_str(videohash[:length])}#{', bass boost enabled' if videohash[:bassboost]}\n#{videohash[:description]}")
         end
-        embed.title = "**hBot Queue** - Video time: #{Time.at(event.voice.stream_time.to_i).utc.strftime('%H:%M:%S')}/#{$masterqueue[event.server.id].first[:length]}"
+        embed.title = "**hBot Queue** - Video time: #{seconds_to_str(event.voice.stream_time.to_i)}/#{seconds_to_str($masterqueue[event.server.id].first[:length])}"
         embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: event.bot.profile.avatar_url)
         embed.footer = Discordrb::Webhooks::EmbedFooter.new(text: $masterqueue[event.server.id].count.to_s + ' videos in queue.')
         embed.color = 0x7289DA
       end
     end
 
+    def self.seconds_to_str(seconds)
+      result = Time.at(seconds).utc.strftime("%H:%M:%S")
+      until (!result.start_with? '00:') || (result.length == 5)
+        result = result.sub('00:', '')
+      end
+      result
+    end
+
     def self.play_video(event, search, bassboost=false)
       begin
-        video = {}
         vidsearch = if !event.message.attachments.empty?
           event.message.attachments.first.url
         elsif search.size == 1 && search.first.start_with?('http')
@@ -35,21 +67,9 @@ module Bot::DiscordCommands
           "\"ytsearch1:#{search.join(' ')}\""
         end
 
-        youtubedl = `youtube-dl --restrict-filenames --get-filename -o "data/musiccache/#{"bassboost-" if bassboost}%(title)s" --dump-json #{vidsearch}`.chomp.split("\n")
-        query = JSON.parse(youtubedl[1]).with_indifferent_access
-        video[:description] = query[:description] || 'N/A'
-        video[:title] = query[:fulltitle] || 'N/A'
-        video[:url] = query[:webpage_url] || 'N/A'
-        video[:thumbnail_url] = if query[:thumbnails] then query[:thumbnails].first[:url] else event.bot.profile.avatar_url end
-        video[:like_count] = query[:like_count] || 'N/A'
-        video[:dislike_count] = query[:dislike_count] || 'N/A'
-        video[:view_count] = query[:view_count] || 'N/A'
-        video[:length] = query[:duration] || 'N/A'
-        video[:location] = youtubedl[0] + '.mp4'
-        video[:bassboost] = bassboost
-        video[:event] = event
+        youtubedl = `youtube-dl --restrict-filenames -o "data/musiccache/#{"bassboost-" if bassboost}%(title)s" --dump-json #{vidsearch}`
 
-        add_video(event, video)
+        add_video(event, @query.call(youtubedl, event, bassboost))
 
         event.send_timed_embed('Ok, adding to queue:', @newemb.call(event, 0x7289DA))
       rescue => error
