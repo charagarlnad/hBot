@@ -2,39 +2,46 @@ module Bot::DiscordCommands
   module Music
     extend Discordrb::Commands::CommandContainer
     $masterqueue = Hash.new { |h, k| h[k] = [] }
-    @embedtimeout = 30.freeze
+    $embedtimeout = 30.freeze
+    $leftarrow = "⬅".freeze
+    $rightarrow = "➡".freeze
+    $checkmark = "✔".freeze
+    $trashcan = "🗑".freeze
+    $normalcolor = 0x7289DA.freeze
+    $othercolor = 0x89DA72.freeze
+    $errorcolor = 0xDA7289.freeze
 
-    @newemb = lambda { |event, color: $normalcolor, video: $masterqueue[event.server.id].first|
+    @newemb = lambda do |event, color: $normalcolor, video: $masterqueue[event.server.id].first|
       Discordrb::Webhooks::Embed.new title: video[:title],
       description: video[:description][0..1023],
       fields: [Discordrb::Webhooks::EmbedField.new(name: 'Video info', value: "#{video[:like_count]}<:likes:434777642353295371> / #{video[:dislike_count]}<:dislikes:434777663929057290>, #{video[:view_count]} Views, Length: #{self.seconds_to_str(video[:length])}#{', Bass Boost enabled' if video[:bassboost]}")],
       thumbnail: Discordrb::Webhooks::EmbedThumbnail.new(url: video[:thumbnail_url]),
       url: video[:url],
       color: color
-    }
+    end
     
-    @query = lambda { |ytdl, event, bassboost: false, index: nil|
+    @query = lambda do |ytdl, event, bassboost: false, index: nil|
       if index
         sleep(0.1) until ytdl.length >= index + 1
         currvideo = JSON.parse(ytdl[index]).with_indifferent_access
       else
         currvideo = JSON.parse(ytdl).with_indifferent_access
       end
-      video = {}
-      video[:description] = currvideo[:description] || 'N/A'
-      video[:title] = currvideo[:fulltitle] || 'N/A'
-      video[:url] = currvideo[:webpage_url] || 'N/A'
-      video[:thumbnail_url] = if currvideo[:thumbnails] then currvideo[:thumbnails].first[:url] else event.bot.profile.avatar_url end
-      video[:like_count] = currvideo[:like_count] || 'N/A'
-      video[:dislike_count] = currvideo[:dislike_count] || 'N/A'
-      video[:view_count] = currvideo[:view_count] || 'N/A'
-      video[:length] = currvideo[:duration] || 0
-      video[:location] = currvideo[:_filename] + '.mp4'
-      video[:loop] = false
-      video[:bassboost] = bassboost
-      video[:event] = event
-      video
-    }
+      {}.tap do |video|
+        video[:description] = currvideo[:description] || 'N/A'
+        video[:title] = currvideo[:fulltitle] || 'N/A'
+        video[:url] = currvideo[:webpage_url] || 'N/A'
+        video[:thumbnail_url] = if currvideo[:thumbnails] then currvideo[:thumbnails].first[:url] else event.bot.profile.avatar_url end
+        video[:like_count] = currvideo[:like_count] || 'N/A'
+        video[:dislike_count] = currvideo[:dislike_count] || 'N/A'
+        video[:view_count] = currvideo[:view_count] || 'N/A'
+        video[:length] = currvideo[:duration] || 0
+        video[:location] = currvideo[:_filename] + '.mp4'
+        video[:loop] = false
+        video[:bassboost] = bassboost
+        video[:event] = event
+      end
+    end
 
     command(:queue, requirements: [:in_voice, :queue_not_empty]) do |event|
       event.send_timed_embed do |embed|

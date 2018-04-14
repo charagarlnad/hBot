@@ -1,15 +1,6 @@
 module Bot::DiscordCommands
   module Music
     extend Discordrb::Commands::CommandContainer
-
-    $leftarrow = "⬅".freeze
-    $rightarrow = "➡".freeze
-    $checkmark = "✔".freeze
-    $trashcan = "🗑".freeze
-    $normalcolor = 0x7289DA.freeze
-    $othercolor = 0x89DA72.freeze
-    $errorcolor = 0xDA7289.freeze
-
     command(:search, requirements: [:in_voice, :has_arguments]) do |event, *search|
       videos = []
       index = 0
@@ -52,7 +43,7 @@ module Bot::DiscordCommands
 
         add_video(event, @query.call(videos, event, index: index))
 
-        sleep(@embedtimeout)
+        sleep($embedtimeout)
         emb.delete
       end
 

@@ -3,7 +3,7 @@ module Discordrb::Events
     def send_timed_embed(message = '', embed = nil, &block)
       Thread.new do
         emb = channel.send_embed(message, embed, &block)
-        sleep(30)
+        sleep($embedtimeout)
         emb.delete
       end
       nil
