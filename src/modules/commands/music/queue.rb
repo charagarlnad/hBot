@@ -15,9 +15,7 @@ module Bot::DiscordCommands
     
     @query = lambda { |ytdl, event, bassboost=false, search=false, index=0|
       if search
-        until ytdl.size >= index + 1 do
-          sleep(0.1)
-        end
+        sleep(0.1) until ytdl.length >= index + 1
         currvideo = JSON.parse(ytdl[index]).with_indifferent_access
       else
         currvideo = JSON.parse(ytdl).with_indifferent_access
@@ -32,6 +30,7 @@ module Bot::DiscordCommands
       video[:view_count] = currvideo[:view_count] || 'N/A'
       video[:length] = currvideo[:duration] || 0
       video[:location] = currvideo[:_filename] + '.mp4'
+      video[:loop] = false
       video[:bassboost] = bassboost
       video[:event] = event
       video
@@ -44,7 +43,7 @@ module Bot::DiscordCommands
         end
         embed.title = "**hBot Queue** - Video time: #{seconds_to_str(event.voice.stream_time.to_i)}/#{seconds_to_str($masterqueue[event.server.id].first[:length])}"
         embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: event.bot.profile.avatar_url)
-        embed.footer = Discordrb::Webhooks::EmbedFooter.new(text: $masterqueue[event.server.id].count.to_s + ' videos in queue.')
+        embed.footer = Discordrb::Webhooks::EmbedFooter.new(text: $masterqueue[event.server.id].length.to_s + ' videos in queue.')
         embed.color = 0x7289DA
       end
     end
@@ -61,7 +60,7 @@ module Bot::DiscordCommands
       begin
         vidsearch = if !event.message.attachments.empty?
           event.message.attachments.first.url
-        elsif search.size == 1 && search.first.start_with?('http')
+        elsif search.length == 1 && search.first.start_with?('http')
           search.first
         else
           "\"ytsearch1:#{search.join(' ')}\""
@@ -74,7 +73,7 @@ module Bot::DiscordCommands
         event.send_timed_embed('Ok, adding to queue:', @newemb.call(event, 0x7289DA))
       rescue => error
         event.send_timed_embed do |embed|
-          embed.description = 'Invalid file/url.'
+          embed.description = 'Invalid file/search.'
           embed.add_field(name: 'Tell a developer:', value: "#{error.class};\n#{error}", inline: true)
           embed.color = 0xDA7289
         end
@@ -82,18 +81,16 @@ module Bot::DiscordCommands
 
     end
 
-    def self.add_video(event, video)
-      video[:loop] = false
-      
+    def self.add_video(event, video)      
       unless File.file?(video[:location])
         video[:downloader] = Thread.new do
-          system("youtube-dl --restrict-filenames --format best --recode-video mp4 -o \"data/musiccache/%(title)s.%(ext)s\" #{video[:url]}") unless File.file?(video[:location].gsub('bassboost-', ''))
+          system("youtube-dl --restrict-filenames --format best --recode-video mp4 -o \"data/musiccache/%(title)s.%(ext)s\" #{video[:url]}") unless File.file?(video[:location].sub('/bassboost-', '/'))
           system("ffmpeg -i #{video[:location].gsub('bassboost-', '')} -af bass=g=20:f=200 #{video[:location]}") if video[:location].include? '/bassboost-'
         end
       end
 
       $masterqueue[event.server.id] << video
-      start_player(event) if $masterqueue[event.server.id].size == 1
+      start_player(event) if $masterqueue[event.server.id].length == 1
     end
 
     def self.start_player(event)
@@ -101,9 +98,7 @@ module Bot::DiscordCommands
         until $masterqueue[event.server.id].empty?
 
           unless $masterqueue[event.server.id].first[:downloader].nil?
-            until $masterqueue[event.server.id].first[:downloader].alive? == false
-              sleep(0.1)
-            end
+            sleep(0.1) while $masterqueue[event.server.id].first[:downloader].alive?
           end
 
           emb = event.channel.send_embed('Now playing:', @newemb.call(event, 0x89DA72))
@@ -112,8 +107,7 @@ module Bot::DiscordCommands
 
           emb.delete
 
-          break if $masterqueue[event.server.id].empty?
-          $masterqueue[event.server.id].shift unless $masterqueue[event.server.id].first[:loop]
+          $masterqueue[event.server.id].shift unless (if $masterqueue[event.server.id].first then $masterqueue[event.server.id].first[:loop] else false end)
         end
       end
       nil
