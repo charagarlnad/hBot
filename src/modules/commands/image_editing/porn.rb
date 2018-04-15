@@ -1,7 +1,7 @@
 module Bot::DiscordCommands
   module ImageEditing
     extend Discordrb::Commands::CommandContainer
-    command :porn do |event|
+    command(:porn, type: :'Image Editing') do |event|
       canvas = Magick::Image.read('data/command_data/porn/source.png').first
       mask = Magick::Image.read('data/command_data/porn/mask.png').first.negate
       mask.matte = false

@@ -1,7 +1,7 @@
 module Bot::DiscordCommands
   module Games
     extend Discordrb::Commands::CommandContainer
-    command :mcserver do |event, server|
+    command(:mcserver, type: :Games, description: 'Get status for a [**Minecraft Server**].') do |event, server|
       info = JSON.parse(RestClient.get("https://mc-api.net/v3/server/ping/#{server}"))
       if !info['error'].nil?
         event.channel.send_embed do |embed|

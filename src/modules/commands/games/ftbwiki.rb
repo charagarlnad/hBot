@@ -6,7 +6,7 @@ module Bot::DiscordCommands
     rightarrow = "\u27a1"
     leftarrow = "\u2b05"
 
-    command :ftbwiki do |event, *user_search|
+    command(:ftbwiki, type: :Games, description: 'Search FTB Wiki for [**X**].') do |event, *user_search|
        catch(:escape) do
         # add a timeout before handlers are deleted and a delete button
         # I have no idea how this works, but it does

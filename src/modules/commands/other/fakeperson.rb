@@ -1,7 +1,7 @@
 module Bot::DiscordCommands
   module Other
     extend Discordrb::Commands::CommandContainer
-    command :fakeperson do |event|
+    command(:fakeperson, type: :Other, description: 'Generate a random fake person.') do |event|
       event.channel.send_embed do |embed|
         embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: Faker::Avatar.image)
         embed.author = Discordrb::Webhooks::EmbedAuthor.new(name: Faker::Name.name)

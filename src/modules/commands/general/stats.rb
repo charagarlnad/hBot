@@ -2,7 +2,7 @@ module Bot::DiscordCommands
   module General
     extend Discordrb::Commands::CommandContainer
     starttime = Time.now
-    command :stats do |event|
+    command(:stats, type: :General, description: 'Get a list of statistics about the bot.') do |event|
       ping = ((Time.now - event.timestamp) * 1000).to_i
 
       total_size = 0
@@ -25,6 +25,7 @@ module Bot::DiscordCommands
     def self.seconds_to_units(seconds)
       '%d days, %d hours, %d minutes, %d seconds' %
         # the .reverse lets us put the larger units first for readability
+        # make it only give units that arent 0
         [24,60,60].reverse.inject([seconds]) {|result, unitsize|
           result[0,0] = result.shift.divmod(unitsize)
           result

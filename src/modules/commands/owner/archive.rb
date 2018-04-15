@@ -1,7 +1,7 @@
 module Bot::DiscordCommands
     module Eval
       extend Discordrb::Commands::CommandContainer
-      command(:archive) do |event|
+      command(:archive, type: :Owner, description: 'Archive all the messages in the channel the command is executed in.') do |event|
         if event.user.id == 123927345307451392
           event.respond "Ok, archiving."
           channel = event.message.channel.id

@@ -1,5 +1,4 @@
 # Gems
-require 'ostruct'
 require 'yaml'
 require 'open-uri'
 
@@ -19,13 +18,22 @@ module Bot
   Dir['src/modules/*.rb'].each { |mod| load mod }
 
   # Bot configuration
-  CONFIG = OpenStruct.new YAML.load_file 'data/config.yaml'
+  CONFIG = (YAML.load_file 'data/config.yaml').with_indifferent_access.freeze
+
+  $embedtimeout = 30.freeze
+  $leftarrow = "⬅".freeze
+  $rightarrow = "➡".freeze
+  $checkmark = "✔".freeze
+  $trashcan = "🗑".freeze
+  $normalcolor = 0x7289DA.freeze
+  $othercolor = 0x89DA72.freeze
+  $errorcolor = 0xDA7289.freeze
 
   # Create the bot.
   # The bot is created as a constant, so that you
   # can access the cache anywhere.
   # newlines are for nerds, I throw everything on one line, fuck off rubocop
-  BOT = Discordrb::Commands::CommandBot.new(client_id: CONFIG.client_id, token: CONFIG.token, prefix: CONFIG.prefix, help_available: false, no_permission_message: '') # log_mode: :debug
+  BOT = Discordrb::Commands::CommandBot.new(client_id: CONFIG[:client_id], token: CONFIG[:token], prefix: CONFIG[:prefix], help_available: false) # log_mode: :debug
 
   # This class method wraps the module lazy-loading process of discordrb command
   # and event modules. Any module name passed to this method will have its child

@@ -1,7 +1,7 @@
 module Bot::DiscordCommands
   module ImageEditing
     extend Discordrb::Commands::CommandContainer
-    command :youtube do |event|
+    command(:youtube, type: :'Image Editing') do |event|
       canvas = Magick::Image.read('data/command_data/youtube/source.png').first
       mask = Magick::Image.read('data/command_data/youtube/mask.png').first.negate
       mask.matte = false

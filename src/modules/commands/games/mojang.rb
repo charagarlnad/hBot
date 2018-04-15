@@ -1,7 +1,7 @@
 module Bot::DiscordCommands
   module Games
     extend Discordrb::Commands::CommandContainer
-    command :mojang do |event|
+    command(:mojang, type: :Games, description: 'Get status for Mojang servers.') do |event|
       statuses = JSON.parse(RestClient.get('https://status.mojang.com/check')).reduce Hash.new, :merge
       messages = {}
       statuses.each do |site, status|

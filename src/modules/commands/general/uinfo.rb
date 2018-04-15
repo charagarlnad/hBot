@@ -1,7 +1,8 @@
 module Bot::DiscordCommands
   module General
       extend Discordrb::Commands::CommandContainer
-      command(:uinfo) do |event|
+      command(:uinfo, type: :General, description: 'Get a list of statistics about the user that runs the command.') do |event|
+        # Allow mentions of other users
         event.channel.send_embed do |embed|
           embed.title = "User Info"
           embed.add_field(name: "Name\#Discrim", value: "#{event.user.name}\##{event.user.discrim}", inline: true)

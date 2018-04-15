@@ -1,7 +1,7 @@
 module Bot::DiscordCommands
   module ImageEditing
     extend Discordrb::Commands::CommandContainer
-    command :mariodelet do |event|
+    command(:mariodelet, type: :'Image Editing') do |event|
       canvas = Magick::Image.from_blob(event.get_editimage).first
 
       background = Magick::Image.new(canvas.columns * 1.68, canvas.rows) do |c|

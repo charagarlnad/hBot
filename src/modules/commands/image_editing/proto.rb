@@ -1,7 +1,7 @@
 module Bot::DiscordCommands
   module ImageEditing
     extend Discordrb::Commands::CommandContainer
-    command :proto do |event|
+    command(:proto, type: :'Image Editing') do |event|
       #reading from memory is slower
       canvas = Magick::Image.read('data/command_data/proto/proto.png').first
       mask = Magick::Image.read('data/command_data/proto/mask.png').first.negate

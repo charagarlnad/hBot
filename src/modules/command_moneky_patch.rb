@@ -53,7 +53,8 @@ module Discordrb::Commands
         rescue: attributes[:rescue],
 
         ### start additon
-        requirements: attributes[:requirements] || []
+        requirements: attributes[:requirements] || [],
+        type: attributes[:type] || :Unsorted
         ### end additon
 
       }

@@ -1,7 +1,7 @@
 module Bot::DiscordCommands
   module Music
     extend Discordrb::Commands::CommandContainer
-    command(:clear, requirements: [:in_voice, :playing]) do |event|
+    command(:clear, requirements: [:in_voice, :playing], type: :Music, description: 'Clear the music queue.') do |event|
       $masterqueue[event.server.id].clear
       event.voice.stop_playing
 

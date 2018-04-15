@@ -1,7 +1,7 @@
 module Bot::DiscordCommands
   module General
       extend Discordrb::Commands::CommandContainer
-      command(:sinfo) do |event|
+      command(:sinfo, type: :General, description: 'Get a list of statistics about the server the command is run in.') do |event|
         event.channel.send_embed do |embed|
           embed.title = "Server Info"
           embed.add_field(name: "Server Name", value: event.server.name, inline: true)

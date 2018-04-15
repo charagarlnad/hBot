@@ -1,7 +1,7 @@
 module Bot::DiscordCommands
   module ImageEditing
     extend Discordrb::Commands::CommandContainer
-    command :protect do |event|
+    command(:protect, type: :'Image Editing') do |event|
       canvas = Magick::Image.read('data/command_data/protect/source.png').first
 
       append_image = Magick::Image.from_blob(event.get_editimage).first.resize_to_fit(350, 250)

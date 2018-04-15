@@ -1,7 +1,7 @@
 module Bot::DiscordCommands
   module Music
     extend Discordrb::Commands::CommandContainer
-    command :summon do |event|
+    command(:summon, type: :Music, description: 'Summon the bot into your current voice channel.') do |event|
       event.voice.destroy unless event.voice.nil? # it gets stuck sometimes over a reboot so this fixes it
       event.bot.voice_connect(event.user.voice_channel)
 

@@ -1,7 +1,7 @@
 module Bot::DiscordCommands
   module ImageEditing
     extend Discordrb::Commands::CommandContainer
-    command :crash do |event|
+    command(:crash, type: :'Image Editing') do |event|
       #use pitch/skew to make this look better
       canvas = Magick::Image.read('data/command_data/crash/source.png').first
       mask = Magick::Image.read('data/command_data/crash/mask.png').first.negate

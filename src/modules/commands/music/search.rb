@@ -1,7 +1,7 @@
 module Bot::DiscordCommands
   module Music
     extend Discordrb::Commands::CommandContainer
-    command(:search, requirements: [:in_voice, :has_arguments]) do |event, *search|
+    command(:search, requirements: [:in_voice, :has_arguments], type: :Music, description: 'Search for a [**Video/Search**] to add to the music queue.') do |event, *search|
       videos = []
       index = 0
       Thread.new do
@@ -43,8 +43,10 @@ module Bot::DiscordCommands
 
         add_video(event, @query.call(videos, event, index: index))
 
-        sleep($embedtimeout)
-        emb.delete
+        Thread.new do # Awaits do not get the fancy proc that commands do, so you have to do this.
+          sleep($embedtimeout)
+          emb.delete
+        end
       end
 
       event.bot.add_await(:"trashcan#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: $trashcan, from: event.author, message: emb) do

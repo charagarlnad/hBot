@@ -1,7 +1,7 @@
 module Bot::DiscordCommands
   module ImageEditing
     extend Discordrb::Commands::CommandContainer
-    command :gone do |event|
+    command(:gone, type: :'Image Editing') do |event|
       #maybe optimize by making 1 append image with 3 insside of it on 1 level and move them to the correct spots
       canvas = Magick::Image.read('data/command_data/gone/source.png').first
       mask = Magick::Image.read('data/command_data/gone/mask.png').first.negate

@@ -1,7 +1,7 @@
 module Bot::DiscordCommands
   module ImageEditing
     extend Discordrb::Commands::CommandContainer
-    command :ipmask do |event|
+    command(:ipmask, type: :'Image Editing') do |event|
       upload = Tempfile.new(['imgbot', '.png'])
       IO.copy_stream(StringIO.new(event.get_editimage), upload.path)
 
