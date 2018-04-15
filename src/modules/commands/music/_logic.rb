@@ -57,7 +57,7 @@ module Bot::DiscordCommands
 
         add_video(event, @query.call(youtubedl, event, bassboost: bassboost))
 
-        event.send_timed_embed('Ok, adding to queue:', @newemb.call(event))
+        event.send_timed_embed('Ok, adding to queue:', @newemb.call(event, video: $masterqueue[event.server.id].last))
       rescue => error
         event.send_timed_embed do |embed|
           embed.description = 'Invalid file/search.'
@@ -71,8 +71,8 @@ module Bot::DiscordCommands
     def self.add_video(event, video)      
       unless File.file?(video[:location])
         video[:downloader] = Thread.new do
-          system("youtube-dl --restrict-filenames --format best --recode-video mp4 -o \"data/musiccache/%(title)s.%(ext)s\" #{video[:url]}") unless File.file?(video[:location].sub('/bassboost-', '/'))
-          system("ffmpeg -i #{video[:location].sub('/bassboost-', '/')} -af bass=g=20:f=200 #{video[:location]}") if video[:location].include? '/bassboost-'
+          system("youtube-dl -q --restrict-filenames --format best --recode-video mp4 -o \"data/musiccache/%(title)s.%(ext)s\" #{video[:url]}") unless File.file?(video[:location].sub('/bassboost-', '/'))
+          system("ffmpeg -loglevel panic -i #{video[:location].sub('/bassboost-', '/')} -af bass=g=20:f=200 #{video[:location]}") if video[:location].include? '/bassboost-'
         end
       end
 
