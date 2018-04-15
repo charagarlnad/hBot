@@ -55,7 +55,7 @@ module Bot::DiscordCommands
 
         youtubedl = `youtube-dl --restrict-filenames -o "data/musiccache/#{"bassboost-" if bassboost}%(title)s" --dump-json #{vidsearch}`
 
-        add_video(event, @query.call(youtubedl, event, bassboost: bassboost))
+        add_video(@query.call(youtubedl, event, bassboost: bassboost))
 
         event.send_timed_embed('Ok, adding to queue:', @newemb.call(event, video: $masterqueue[event.server.id].last))
       rescue => error
@@ -68,7 +68,7 @@ module Bot::DiscordCommands
 
     end
 
-    def self.add_video(event, video)      
+    def self.add_video(video)      
       unless File.file?(video[:location])
         video[:downloader] = Thread.new do
           system("youtube-dl -q --restrict-filenames --format best --recode-video mp4 -o \"data/musiccache/%(title)s.%(ext)s\" #{video[:url]}") unless File.file?(video[:location].sub('/bassboost-', '/'))
@@ -76,8 +76,8 @@ module Bot::DiscordCommands
         end
       end
 
-      $masterqueue[event.server.id] << video
-      start_player(event) if $masterqueue[event.server.id].length == 1
+      $masterqueue[video[:event].server.id] << video
+      start_player(video[:event]) if $masterqueue[video[:event].server.id].length == 1
     end
 
     def self.start_player(event)

@@ -41,7 +41,7 @@ module Bot::DiscordCommands
 
         event.bot.awaits.except!(:"leftarrow#{emb.id}", :"rightarrow#{emb.id}", :"checkmark#{emb.id}", :"trashcan#{emb.id}")
 
-        add_video(event, @query.call(videos, event, index: index))
+        add_video(@query.call(videos, event, index: index))
 
         Thread.new do # Awaits do not get the fancy proc that commands do, so you have to do this.
           sleep($embedtimeout)
