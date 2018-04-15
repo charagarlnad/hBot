@@ -22,14 +22,13 @@ module Bot::DiscordCommands
       
     end
 
-    def self.seconds_to_units(seconds)
-      '%d days, %d hours, %d minutes, %d seconds' %
-        # the .reverse lets us put the larger units first for readability
-        # make it only give units that arent 0
-        [24,60,60].reverse.inject([seconds]) {|result, unitsize|
-          result[0,0] = result.shift.divmod(unitsize)
-          result
-        }
+    def self.seconds_to_units(secs)
+      [[60, :seconds], [60, :minutes], [24, :hours], [1000, :days]].map{ |count, name|
+        if secs > 0
+          secs, n = secs.divmod(count)
+          "#{n.to_i} #{name}"
+        end
+      }.compact.reverse.join(' ')
     end
 
   end
