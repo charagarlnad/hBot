@@ -6,7 +6,7 @@ module Bot::DiscordCommands
       video.screenshot('data/musiccache/screenshot.png', seek_time: event.voice.stream_time.to_i)
       emb = event.channel.send_file File.new('data/musiccache/screenshot.png')
 
-      sleep(@embedtimeout)
+      sleep($embedtimeout)
       emb.delete
     end
   end
