@@ -32,7 +32,6 @@ module Bot
   # Create the bot.
   # The bot is created as a constant, so that you
   # can access the cache anywhere.
-  # newlines are for nerds, I throw everything on one line, fuck off rubocop
   BOT = Discordrb::Commands::CommandBot.new(client_id: CONFIG[:client_id], token: CONFIG[:token], prefix: CONFIG[:prefix], help_available: false) # log_mode: :debug
 
   # This class method wraps the module lazy-loading process of discordrb command

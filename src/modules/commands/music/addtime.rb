@@ -5,7 +5,7 @@ module Bot::DiscordCommands
       event.voice.skip(time.to_i)
       event.send_timed_embed do |e|
         e.description = "Ok, skipped #{time} seconds ahead."
-        e.color = 0x7289DA
+        e.color = $normalcolor
       end
     end
   end

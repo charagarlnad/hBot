@@ -8,7 +8,7 @@ module Bot::DiscordCommands
 
       event.send_timed_embed do |e|
         e.description = 'Disconnected.'
-        e.color = 0x7289DA
+        e.color = $normalcolor
       end
     end
   end

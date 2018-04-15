@@ -5,7 +5,7 @@ module Bot::DiscordCommands
       event.voice.stop_playing
       event.send_timed_embed do |e|
         e.description = 'Ok, skipping video.'
-        e.color = 0x7289DA
+        e.color = $normalcolor
       end
 
     end

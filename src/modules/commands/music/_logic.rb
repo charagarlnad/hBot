@@ -3,10 +3,10 @@ module Bot::DiscordCommands
     extend Discordrb::Commands::CommandContainer
     $masterqueue = Hash.new { |h, k| h[k] = [] }
 
-    @newemb = lambda do |event, color: $normalcolor, video: $masterqueue[event.server.id].first|
+    @newemb = lambda do |event, color: $normalcolor, video: $masterqueue[event.server.id].first, queue: false|
       Discordrb::Webhooks::Embed.new title: video[:title],
       description: video[:description][0..1023],
-      fields: [Discordrb::Webhooks::EmbedField.new(name: 'Video info', value: "#{video[:like_count]}<:likes:434777642353295371> / #{video[:dislike_count]}<:dislikes:434777663929057290>, #{video[:view_count]} Views, Length: #{self.seconds_to_str(video[:length])}#{', Bass Boost enabled' if video[:bassboost]}")],
+      fields: [Discordrb::Webhooks::EmbedField.new(name: 'Video info', value: "#{video[:like_count]}<:likes:434777642353295371> / #{video[:dislike_count]}<:dislikes:434777663929057290>, #{video[:view_count]} Views, Length: #{queue ? "#{seconds_to_str(event.voice.stream_time.to_i)}/" : ''}#{self.seconds_to_str(video[:length])}#{', Bass Boost enabled' if video[:bassboost]}")],
       thumbnail: Discordrb::Webhooks::EmbedThumbnail.new(url: video[:thumbnail_url]),
       url: video[:url],
       color: color
@@ -62,7 +62,7 @@ module Bot::DiscordCommands
         event.send_timed_embed do |embed|
           embed.description = 'Invalid file/search.'
           embed.add_field(name: 'Tell a developer:', value: "#{error.class};\n#{error}", inline: true)
-          embed.color = 0xDA7289
+          embed.color = $errorcolor
         end
       end
 

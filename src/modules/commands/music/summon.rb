@@ -6,8 +6,8 @@ module Bot::DiscordCommands
       event.bot.voice_connect(event.user.voice_channel)
 
       event.send_timed_embed do |e|
-        e.description = "Ok, joining `#{event.user.voice_channel.name}`"
-        e.color = 0x7289DA
+        e.description = "Ok, joining `#{event.user.voice_channel.name}`."
+        e.color = $normalcolor
       end
 
     end
