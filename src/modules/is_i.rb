@@ -1,11 +1,8 @@
 class String
-  def is_i?
-     /\A[-+]?\d+\z/ === self
-  end
-end
-
-class NilClass
-  def is_i?
-     false
+  def i?
+    Integer(self)
+    true
+  rescue ArgumentError
+    false
   end
 end

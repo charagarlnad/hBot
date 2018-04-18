@@ -1,3 +1,6 @@
+Style/GlobalVars:
+  Enabled: false
+
 Metrics/LineLength:
   Enabled: false
 

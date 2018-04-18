@@ -81,7 +81,7 @@ module Discordrb::Commands
                 when :queue_not_empty then 'There is nothing in the queue.' if $masterqueue[event.server.id].empty?
                 when :has_arguments_or_attachment then 'A search or attachment is required.' if event.content.split(' ').size == 1 && event.message.attachments.empty?
                 when :has_arguments then 'A search is required.' if event.content.split(' ').size == 1 
-                when :arguments_is_int then 'That is not a number.' unless event.content.split(' ')[1].is_i?
+                when :arguments_is_int then 'That is not a number.' unless event.content.split(' ')[1].i?
                 else nil
                 end
         if error

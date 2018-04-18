@@ -20,16 +20,16 @@ module Bot
   # Bot configuration
   CONFIG = (YAML.load_file 'data/config.yaml').with_indifferent_access.freeze
 
-  $embedtimeout = 30.freeze
+  $embedtimeout = 30
+  $normalcolor = 0x7289DA
+  $othercolor = 0x89DA72
+  $errorcolor = 0xDA7289
   $leftarrow = '⬅'.freeze
   $rightarrow = '➡'.freeze
   $checkmark = '✔'.freeze
   $trashcan = '🗑'.freeze
   $like = '<:likes:434777642353295371>'.freeze
   $dislike = '<:dislikes:434777663929057290>'.freeze
-  $normalcolor = 0x7289DA.freeze
-  $othercolor = 0x89DA72.freeze
-  $errorcolor = 0xDA7289.freeze
 
   # Create the bot.
   # The bot is created as a constant, so that you
