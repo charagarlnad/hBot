@@ -5,28 +5,30 @@ module Bot::DiscordCommands
       statuses = JSON.parse(RestClient.get('https://status.mojang.com/check')).reduce({}, :merge)
       messages = {}
       statuses.each do |site, status|
-        type = case site
-               when 'minecraft.net' then 'Minecraft'
-               when 'session.minecraft.net' then 'Minecraft Sessions'
-               when 'account.mojang.com' then 'Mojang Account'
-               when 'authserver.mojang.com' then 'Mojang Auth Server'
-               when 'sessionserver.mojang.com' then 'Mojang Sessions'
-               when 'api.mojang.com' then 'Mojang API'
-               when 'textures.minecraft.net' then 'Minecraft Textures'
-               when 'mojang.com' then 'Mojang'
-               else site
-               end
-        resp = case status
-               when 'green' then '✅'
-               when 'yellow' then '⚠'
-               when 'red' then '❌'
-               else '❓'
-               end
+        type =
+          case site
+          when 'minecraft.net' then 'Minecraft'
+          when 'session.minecraft.net' then 'Minecraft Sessions'
+          when 'account.mojang.com' then 'Mojang Account'
+          when 'authserver.mojang.com' then 'Mojang Auth Server'
+          when 'sessionserver.mojang.com' then 'Mojang Sessions'
+          when 'api.mojang.com' then 'Mojang API'
+          when 'textures.minecraft.net' then 'Minecraft Textures'
+          when 'mojang.com' then 'Mojang'
+          else site
+          end
+        resp =
+          case status
+          when 'green' then '✅'
+          when 'yellow' then '⚠'
+          when 'red' then '❌'
+          else '❓'
+          end
 
         messages[type] = resp
       end
       event.channel.send_embed do |embed|
-        embed.colour = 0x617f9d
+        embed.color = $normalcolor
         embed.url = 'https://twitter.com/mojangstatus'
         embed.description = '```Current Mojang Stats are:```'
 

@@ -4,12 +4,14 @@ module Bot::DiscordCommands
     $masterqueue = Hash.new { |h, k| h[k] = [] }
 
     @newemb = lambda do |event, color: $normalcolor, video: $masterqueue[event.server.id].first, queue: false|
-      Discordrb::Webhooks::Embed.new title: video[:title],
-                                     description: video[:description][0..1023],
-                                     fields: [Discordrb::Webhooks::EmbedField.new(name: 'Video info', value: "#{video[:like_count]}#{$like} / #{video[:dislike_count]}#{$dislike}, #{video[:view_count]} Views, Length: #{queue ? "#{seconds_to_str(event.voice.stream_time.to_i)}/" : ''}#{seconds_to_str(video[:length])}#{', Bass Boost enabled' if video[:bassboost]}")],
-                                     thumbnail: Discordrb::Webhooks::EmbedThumbnail.new(url: video[:thumbnail_url]),
-                                     url: video[:url],
-                                     color: color
+      Discordrb::Webhooks::Embed.new.tap do |embed|
+        embed.title = video[:title]
+        embed.description = video[:description][0..1023]
+        embed.add_field(name: 'Video info', value: "#{video[:like_count]}#{$like} / #{video[:dislike_count]}#{$dislike}, #{video[:view_count]} Views, Length: #{queue ? "#{seconds_to_str(event.voice.stream_time.to_i)}/" : ''}#{seconds_to_str(video[:length])}#{', Bass Boost enabled' if video[:bassboost]}")
+        embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: video[:thumbnail_url])
+        embed.url = video[:url]
+        embed.color = color
+      end
     end
 
     @query = lambda do |ytdl, event, bassboost: false, index: nil|
@@ -44,13 +46,14 @@ module Bot::DiscordCommands
     end
 
     def self.play_video(event, search, bassboost = false)
-      vidsearch = if !event.message.attachments.empty?
-                    event.message.attachments.first.url
-                  elsif search.length == 1 && search.first.start_with?('http')
-                    search.first
-                  else
-                    "\"ytsearch1:#{search.join(' ')}\""
-                  end
+      vidsearch =
+        if !event.message.attachments.empty?
+          event.message.attachments.first.url
+        elsif search.length == 1 && search.first.start_with?('http')
+          search.first
+        else
+          "\"ytsearch1:#{search.join(' ')}\""
+        end
 
       youtubedl = `youtube-dl --restrict-filenames -o "data/musiccache/#{'bassboost-' if bassboost}%(title)s" --dump-json #{vidsearch}`
 
