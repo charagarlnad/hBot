@@ -14,7 +14,7 @@ module Bot::DiscordCommands
           embed.add_field(name: 'Players', inline: true, value: "#{info['players']['online']}/#{info['players']['max']}")
           embed.add_field(name: 'Version', inline: true, value: info['version']['name'])
           embed.add_field(name: 'Ping', inline: true, value: info['took'].round.to_s + 'ms')
-          embed.add_field(name: 'Mods', inline: true, value: info['modinfo']['modList'].size) if !info['modinfo']['modList'].nil? && !info['modinfo']['modList'].empty?
+          embed.add_field(name: 'Mods', inline: true, value: info['modinfo']['modList'].size) if info['modinfo']
           embed.add_field(name: 'MOTD', inline: true, value: info['description']['text']) if !info['description']['text'].nil? && !info['description']['text'].empty?
           embed.color = 0x7289DA
         end
