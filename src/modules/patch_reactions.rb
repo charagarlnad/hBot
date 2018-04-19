@@ -1,22 +1,24 @@
 module Discordrb::API::Channel
   module_function
+
   def create_reaction(token, channel_id, message_id, emoji)
-    emoji = URI.encode(emoji) unless emoji.ascii_only?
+    emoji = CGI.escape(emoji) unless emoji.ascii_only?
     Discordrb::API.raw_request(
       :put,
       ["#{Discordrb::API.api_base}/channels/#{channel_id}/messages/#{message_id}/reactions/#{emoji}/@me",
-      nil,
-      Authorization: token,
-      content_type: :json]
+       nil,
+       Authorization: token,
+       content_type: :json]
     )
     sleep(0.25)
   end
+
   def delete_user_reaction(token, channel_id, message_id, emoji, user_id)
-    emoji = URI.encode(emoji) unless emoji.ascii_only?
+    emoji = CGI.escape(emoji) unless emoji.ascii_only?
     Discordrb::API.raw_request(
       :delete,
       ["#{Discordrb::API.api_base}/channels/#{channel_id}/messages/#{message_id}/reactions/#{emoji}/#{user_id}",
-      Authorization: token]
+       Authorization: token]
     )
     sleep(0.25)
   end

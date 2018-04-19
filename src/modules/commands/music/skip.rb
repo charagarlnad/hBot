@@ -7,7 +7,6 @@ module Bot::DiscordCommands
         e.description = 'Ok, skipping video.'
         e.color = $normalcolor
       end
-
     end
   end
 end

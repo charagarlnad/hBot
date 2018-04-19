@@ -5,20 +5,20 @@ module Bot::DiscordCommands
     embed = lambda do |searchresults, pagenum, event|
       search = searchresults[pagenum]
       stats = butt.get_statistics
-      Discordrb::Webhooks::Embed.new title: search,
       # Reimplment description with https://github.com/nricciar/wikicloth/
-      description: Nokogiri::HTML(open("https://ftb.gamepedia.com/#{search.gsub(' ', '_')}")).search('p').inner_text[0..2047],
-      footer: Discordrb::Webhooks::EmbedFooter.new(text: "Pages: #{stats['pages'].to_s} | Articles: #{stats['articles'].to_s} | Edits: #{stats['edits'].to_s} | Images: #{stats['images'].to_s} | Users: #{stats['users'].to_s} | Active users: #{stats['activeusers'].to_s}"),
-      thumbnail: Discordrb::Webhooks::EmbedThumbnail.new(url: event.bot.profile.avatar_url),
-      url: "https://ftb.gamepedia.com/#{search.gsub(' ', '_')}",
-      color: $normalcolor
+      Discordrb::Webhooks::Embed.new title: search,
+                                     description: Nokogiri::HTML(open("https://ftb.gamepedia.com/#{search.tr(' ', '_')}")).search('p').inner_text[0..2047],
+                                     footer: Discordrb::Webhooks::EmbedFooter.new(text: "Pages: #{stats['pages']} | Articles: #{stats['articles']} | Edits: #{stats['edits']} | Images: #{stats['images']} | Users: #{stats['users']} | Active users: #{stats['activeusers']}"),
+                                     thumbnail: Discordrb::Webhooks::EmbedThumbnail.new(url: event.bot.profile.avatar_url),
+                                     url: "https://ftb.gamepedia.com/#{search.tr(' ', '_')}",
+                                     color: $normalcolor
     end
 
     command(:ftbwiki, type: :Games, description: 'Search FTB Wiki for [**X**].') do |event, *user_search|
       searchresults = butt.get_prefix_search(user_search.join(' '))
       pagenum = 0
 
-      if searchresults[pagenum] == nil
+      unless searchresults[pagenum]
         event.respond 'No search results found.'
         break
       end

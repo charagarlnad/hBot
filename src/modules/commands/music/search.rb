@@ -6,8 +6,8 @@ module Bot::DiscordCommands
       index = 0
       Thread.new do
         IO.popen("youtube-dl --restrict-filenames -o \"data/musiccache/%(title)s\" --dump-json \"ytsearch8:#{search.join(' ')}\"") do |pipe|
-          while output = pipe.gets
-            videos << output
+          pipe.each do |video|
+            videos << video
           end
         end
       end

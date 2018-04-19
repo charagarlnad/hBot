@@ -1,12 +1,8 @@
 module Discordrb::Events
-  # Generic superclass for events about adding and removing reactions
   class ReactionEvent < Event
     # https://github.com/meew0/discordrb/commit/445d9a51cf844cc76a2ce02ab3bd9ef8e3ff8653#diff-974b556cee7010d55a760589d63a82c8
-    def server
-      
-    end
+    def server; end
   end
-
 
   class ReactionEventHandler < EventHandler
     def matches?(event)
@@ -46,5 +42,4 @@ module Discordrb::Events
       ].reduce(true, &:&)
     end
   end
-
 end

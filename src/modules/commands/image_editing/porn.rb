@@ -6,7 +6,7 @@ module Bot::DiscordCommands
       mask = Magick::Image.read('data/command_data/porn/mask.png').first.negate
       mask.matte = false
 
-      append_image = Magick::Image.from_blob(event.get_editimage).first.scale(846, 478)
+      append_image = Magick::Image.from_blob(event.image_source).first.scale(846, 478)
 
       append_image.composite!(mask, Magick::CenterGravity, -45, -120, Magick::CopyOpacityCompositeOp)
       canvas.composite!(append_image, Magick::CenterGravity, 45, 120, Magick::OverCompositeOp)

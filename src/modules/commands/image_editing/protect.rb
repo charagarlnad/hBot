@@ -4,7 +4,7 @@ module Bot::DiscordCommands
     command(:protect, type: :'Image Editing') do |event|
       canvas = Magick::Image.read('data/command_data/protect/source.png').first
 
-      append_image = Magick::Image.from_blob(event.get_editimage).first.resize_to_fit(350, 250)
+      append_image = Magick::Image.from_blob(event.image_source).first.resize_to_fit(350, 250)
 
       canvas.composite!(append_image, Magick::CenterGravity, 0, -115, Magick::OverCompositeOp)
 

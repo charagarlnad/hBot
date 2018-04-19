@@ -1,6 +1,5 @@
 # Gems
 require 'yaml'
-require 'open-uri'
 
 require 'discordrb'
 require 'rmagick'

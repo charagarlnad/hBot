@@ -7,7 +7,6 @@ module Bot::DiscordCommands
         e.description = 'Ok, paused the video.'
         e.color = $normalcolor
       end
-
     end
   end
 end

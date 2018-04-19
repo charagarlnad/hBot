@@ -61,6 +61,7 @@ module Discordrb::Commands
 
       @block = block
     end
+
     # https://github.com/meew0/discordrb/blob/master/lib/discordrb/commands/parser.rb#L76
     def call(event, arguments, chained = false, check_permissions = true)
       if arguments.length < @attributes[:min_args]
@@ -80,18 +81,15 @@ module Discordrb::Commands
                 when :playing then 'There is nothing playing.' unless event.voice.playing?
                 when :queue_not_empty then 'There is nothing in the queue.' if $masterqueue[event.server.id].empty?
                 when :has_arguments_or_attachment then 'A search or attachment is required.' if event.content.split(' ').size == 1 && event.message.attachments.empty?
-                when :has_arguments then 'A search is required.' if event.content.split(' ').size == 1 
+                when :has_arguments then 'A search is required.' if event.content.split(' ').size == 1
                 when :arguments_is_int then 'That is not a number.' unless event.content.split(' ')[1].i?
-                else nil
                 end
-        if error
-          event.send_timed_embed do |e|
-            e.description = error
-            e.color = 0x7289DA
-          end
-          return nil
-
+        next unless error
+        event.send_timed_embed do |e|
+          e.description = error
+          e.color = 0x7289DA
         end
+        return nil
       end
       ### end additon
       unless @attributes[:chain_usable]
@@ -125,6 +123,5 @@ module Discordrb::Commands
 
       raise exception
     end
-
   end
 end

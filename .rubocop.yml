@@ -1,41 +1,39 @@
-Style/GlobalVars:
+AllCops:
+  TargetRubyVersion: 2.5
+
+Metrics:
   Enabled: false
 
-Metrics/LineLength:
-  Enabled: false
+# Eval command can only be run as bot owner, so its 'safe' as long as you dont give random people owner.
+Security/Eval:
+  Exclude:
+    - src/modules/commands/owner/eval.rb
+
+Style/ClassAndModuleChildren:
+  EnforcedStyle: compact
+
+# The error is from the existing discordrb code and not from my monkey patch.
+Style/ConditionalAssignment:
+  Exclude:
+    - src/modules/patch_await.rb
 
 Style/Documentation:
   Enabled: false
 
-Style/ClassAndModuleChildren:
+Style/FrozenStringLiteralComment:
   Enabled: false
 
-Layout/EndOfLine:
-  Enabled: false
-
-Metrics/BlockLength:
-  Enabled: false
-
-Metrics/MethodLength:
-  Enabled: false
-
-Metrics/AbcSize:
+Style/GlobalVars:
   Enabled: false
 
 Style/NumericLiterals:
   Enabled: false
 
-Layout/AlignHash:
-  Enabled: false
+Style/NumericPredicate:
+  EnforcedStyle: comparison
 
-Layout/BlockAlignment:
-  Enabled: false
+Style/RescueStandardError:
+  EnforcedStyle: implicit
 
-Layout/EndAlignment:
-  Enabled: false
-
-Layout/ElseAlignment:
-  Enabled: false
-
-Layout/IndentationWidth:
-  Enabled: false
+Style/SymbolArray:
+  EnforcedStyle: brackets
