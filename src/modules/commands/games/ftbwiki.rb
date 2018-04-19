@@ -8,7 +8,7 @@ module Bot::DiscordCommands
       # Reimplment description with https://github.com/nricciar/wikicloth/
       Discordrb::Webhooks::Embed.new.tap do |local_emb|
         local_emb.title = search
-        local_emb.description = Nokogiri::HTML(open("https://ftb.gamepedia.com/#{search.tr(' ', '_')}")).search('p').inner_text[0..2047]
+        local_emb.description = Nokogiri::HTML(Net::HTTP.get(URI("https://ftb.gamepedia.com/#{search.tr(' ', '_')}"))).search('p').inner_text[0..2047]
         local_emb.footer = Discordrb::Webhooks::EmbedFooter.new(text: "Pages: #{stats['pages']} | Articles: #{stats['articles']} | Edits: #{stats['edits']} | Images: #{stats['images']} | Users: #{stats['users']} | Active users: #{stats['activeusers']}")
         local_emb.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: event.bot.profile.avatar_url)
         local_emb.url = "https://ftb.gamepedia.com/#{search.tr(' ', '_')}"
