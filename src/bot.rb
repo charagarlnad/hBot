@@ -7,7 +7,6 @@ require 'opencv'
 require 'faker'
 require 'mediawiki-butt'
 require 'nokogiri'
-require 'streamio-ffmpeg'
 require 'filesize'
 require 'active_support/core_ext/hash'
 
