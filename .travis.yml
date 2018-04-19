@@ -1,5 +1,9 @@
 language: ruby
 rvm:
   - 2.5.0
+addons:
+  apt:
+    packages:
+      - libopencv-dev
 script:
   - bundle exec rubocop
