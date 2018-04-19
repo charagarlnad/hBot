@@ -11,6 +11,8 @@ Security/Eval:
 
 Style/ClassAndModuleChildren:
   EnforcedStyle: compact
+  Exclude:
+    - src/modules/patch_bot.rb
 
 # The error is from the existing discordrb code and not from my monkey patch.
 Style/ConditionalAssignment:

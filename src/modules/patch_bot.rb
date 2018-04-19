@@ -1,3 +1,5 @@
-module Discordrb::Bot
-  attr_reader :ignored_ids
+module Discordrb
+  class Bot
+    attr_reader :ignored_ids
+  end
 end
