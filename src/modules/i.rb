@@ -2,7 +2,7 @@ class String
   def i?
     Integer(self)
     true
-  rescue ArgumentError
+  rescue
     false
   end
 end
