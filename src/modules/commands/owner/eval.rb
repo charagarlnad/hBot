@@ -2,7 +2,7 @@ module Bot::DiscordCommands
   module Owner
     extend Discordrb::Commands::CommandContainer
     command(:eval, type: :Owner, description: 'Evaluate [**Ruby code**] on the bot.', requirements: [:owner]) do |event, *code|
-      output = eval code.join(' ')
+      output = (eval code.join(' ')).to_s
       event.send_embed do |embed|
         embed.title = "#{$ruby} Eval"
         embed.description =
