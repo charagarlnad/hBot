@@ -17,7 +17,6 @@ module Bot::DiscordCommands
         embed.add_field(name: 'Music cache size', value: Filesize.from(total_size.to_s + ' B').pretty, inline: true)
         embed.add_field(name: 'Users / Servers', value: "#{event.bot.users.count} / #{event.bot.servers.count}", inline: true)
         embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: event.bot.profile.avatar_url)
-        embed.color = $normalcolor
       end
     end
 

@@ -12,7 +12,6 @@ module Bot::DiscordCommands
             puts output
             'Output too long, check console for details.'
           end
-        embed.color = $normalcolor
       end
     rescue => error
       event.send_embed do |embed|
@@ -30,7 +29,6 @@ module Bot::DiscordCommands
             puts error.backtrace.join("\n")
             'Backtrace too long, check console for details.'
           end
-        embed.color = $normalcolor
       end
     end
   end

@@ -12,7 +12,6 @@ module Bot::DiscordCommands
         local_emb.footer = Discordrb::Webhooks::EmbedFooter.new(text: "Pages: #{stats['pages']} | Articles: #{stats['articles']} | Edits: #{stats['edits']} | Images: #{stats['images']} | Users: #{stats['users']} | Active users: #{stats['activeusers']}")
         local_emb.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: event.bot.profile.avatar_url)
         local_emb.url = "https://ftb.gamepedia.com/#{search.tr(' ', '_')}"
-        local_emb.color = $normalcolor
       end
     end
 

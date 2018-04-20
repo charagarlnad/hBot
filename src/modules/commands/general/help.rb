@@ -17,7 +17,6 @@ module Bot::DiscordCommands
         embed.title = '**Imgbot (click me to invite me to your server!)**'
         embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: event.bot.profile.avatar_url)
         embed.url = event.bot.invite_url
-        embed.color = $normalcolor
       end
     end
   end

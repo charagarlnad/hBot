@@ -5,7 +5,6 @@ module Bot::DiscordCommands
       event.voice.pause
       event.send_timed_embed do |e|
         e.description = 'Ok, paused the video.'
-        e.color = $normalcolor
       end
     end
   end

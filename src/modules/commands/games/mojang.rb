@@ -28,7 +28,6 @@ module Bot::DiscordCommands
         messages[type] = resp
       end
       event.channel.send_embed do |embed|
-        embed.color = $normalcolor
         embed.url = 'https://twitter.com/mojangstatus'
         embed.description = '```Current Mojang Stats are:```'
 

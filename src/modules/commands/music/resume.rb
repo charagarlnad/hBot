@@ -5,7 +5,6 @@ module Bot::DiscordCommands
       event.voice.continue
       event.send_timed_embed do |e|
         e.description = 'Ok, resumed the video.'
-        e.color = $normalcolor
       end
     end
   end

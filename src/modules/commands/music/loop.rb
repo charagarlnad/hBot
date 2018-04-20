@@ -12,7 +12,6 @@ module Bot::DiscordCommands
         end
       event.send_timed_embed do |e|
         e.description = msg
-        e.color = $normalcolor
       end
     end
   end

@@ -16,7 +16,6 @@ module Bot::DiscordCommands
         embed.add_field(name: 'Bans', value: event.server.bans.count, inline: true)
         embed.add_field(name: 'Created at', value: "#{event.server.creation_time.getutc.asctime} UTC", inline: true)
         embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: event.server.icon_url)
-        embed.color = $normalcolor
       end
     end
   end

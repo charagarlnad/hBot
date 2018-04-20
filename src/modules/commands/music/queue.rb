@@ -9,7 +9,6 @@ module Bot::DiscordCommands
         embed.title = "**hBot Queue** - Video time: #{seconds_to_str(event.voice.stream_time.to_i)}/#{seconds_to_str($masterqueue[event.server.id].first[:length])}"
         embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: $masterqueue[event.server.id].first[:thumbnail_url])
         embed.footer = Discordrb::Webhooks::EmbedFooter.new(text: "#{$masterqueue[event.server.id].length} videos in queue.")
-        embed.color = $normalcolor
       end
     end
   end

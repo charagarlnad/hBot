@@ -28,9 +28,6 @@ Style/FrozenStringLiteralComment:
 Style/GlobalVars:
   Enabled: false
 
-Style/NumericLiterals:
-  Enabled: false
-
 Style/NumericPredicate:
   EnforcedStyle: comparison
 

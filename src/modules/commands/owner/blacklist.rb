@@ -20,7 +20,6 @@ module Bot::DiscordCommands
             event.bot.ignore_user(user.id)
             "Ok, added #{user.name} to the blacklist."
           end
-        embed.color = $normalcolor
       end
       File.open('data/blacklist.txt', 'w') { |f| f.write(event.bot.ignored_ids.to_a.join("\n")) }
       nil
