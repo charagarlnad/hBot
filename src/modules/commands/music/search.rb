@@ -12,15 +12,13 @@ module Bot::DiscordCommands
         end
       end
 
-      emb = event.channel.send_embed("Video #{index + 1}:", @newemb.call(event, video: @query.call(videos, event, index: index)))
+      emb = event.channel.send_embed("Video #{index + 1}/8:", @newemb.call(event, video: @query.call(videos, event, index: index)))
 
       event.bot.add_await(:"leftarrow#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: $leftarrow, from: event.author, message: emb) do
         emb.delete_reaction(event.author, $leftarrow)
         if index - 1 >= 0
           index -= 1
-          emb.edit("Video #{index + 1}:", @newemb.call(event, video: @query.call(videos, event, index: index)))
-        else
-          emb.edit("Video #{index + 1} (no more videos):", @newemb.call(event, video: @query.call(videos, event, index: index)))
+          emb.edit("Video #{index + 1}/8:", @newemb.call(event, video: @query.call(videos, event, index: index)))
         end
         false
       end
@@ -29,9 +27,7 @@ module Bot::DiscordCommands
         emb.delete_reaction(event.author, $rightarrow)
         if index + 1 <= 7
           index += 1
-          emb.edit("Video #{index + 1}:", @newemb.call(event, video: @query.call(videos, event, index: index)))
-        else
-          emb.edit("Video #{index + 1} (no more videos):", @newemb.call(event, video: @query.call(videos, event, index: index)))
+          emb.edit("Video #{index + 1}/8:", @newemb.call(event, video: @query.call(videos, event, index: index)))
         end
         false # false keeps alive the await
       end
