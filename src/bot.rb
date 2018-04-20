@@ -28,6 +28,7 @@ module Bot
   $trashcan = '🗑'.freeze
   $like = '<:likes:434777642353295371>'.freeze
   $dislike = '<:dislikes:434777663929057290>'.freeze
+  $ruby = '<:ruby:436696214264741890>'.freeze
 
   # Create the bot.
   # The bot is created as a constant, so that you
