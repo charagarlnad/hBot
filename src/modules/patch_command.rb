@@ -77,6 +77,7 @@ module Discordrb::Commands
       ### begin additon
       @attributes[:requirements].each do |arg|
         error = case arg
+                when :owner then 'Only the bot owner can use this command.' unless Bot::CONFIG[:owner_id] == event.user.id
                 when :in_voice then 'I am not in voice.' if event.voice.nil?
                 when :playing then 'There is nothing playing.' unless event.voice.playing?
                 when :queue_not_empty then 'There is nothing in the queue.' if $masterqueue[event.server.id].empty?

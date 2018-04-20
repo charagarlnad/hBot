@@ -1,13 +1,35 @@
 module Bot::DiscordCommands
   module Owner
     extend Discordrb::Commands::CommandContainer
-    command(:eval, type: :Owner, description: 'Evaluate [**Ruby code**] on the bot.') do |event, *code|
-      if event.author.id == 123927345307451392
-        begin
-          eval code.join(' ')
-        rescue => error
-          event << "#{error.class}; #{error.message}"
-        end
+    command(:eval, type: :Owner, description: 'Evaluate [**Ruby code**] on the bot.', requirements: [:owner]) do |event, *code|
+      output = eval code.join(' ')
+      event.send_embed do |embed|
+        embed.description =
+          if output.size <= 2000
+            output
+          else
+            puts output
+            'Output too long, check console for details.'
+          end
+        embed.color = $normalcolor
+      end
+    rescue => error
+      event.send_embed do |embed|
+        embed.title =
+          if error.inspect.size <= 2000
+            error.inspect
+          else
+            puts error.inspect
+            'Error inspect too long, check console for details.'
+          end
+        embed.description =
+          if error.backtrace.join("\n").size <= 2000
+            "```#{error.backtrace.join("\n")}```"
+          else
+            puts error.backtrace.join("\n")
+            'Backtrace too long, check console for details.'
+          end
+        embed.color = $normalcolor
       end
     end
   end
