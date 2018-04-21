@@ -2,7 +2,7 @@ module Bot::DiscordCommands
   module ImageEditing
     extend Discordrb::Commands::CommandContainer
     command(:ipmask, type: :'Image Editing') do |event|
-      upload = Tempfile.new(['imgbot', '.png'])
+      upload = Tempfile.new(['hBot', '.png'])
       IO.copy_stream(StringIO.new(event.image_source), upload.path)
 
       detector = OpenCV::CvHaarClassifierCascade.load('data/command_data/ipmask/haarcascade_frontalface_alt.xml')

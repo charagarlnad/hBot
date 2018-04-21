@@ -14,7 +14,7 @@ module Bot::DiscordCommands
           end
           embed.add_field(name: key, value: commandlist)
         end
-        embed.title = '**Imgbot (click me to invite me to your server!)**'
+        embed.title = '**hBot (click me to invite me to your server!)**'
         embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: event.bot.profile.avatar_url)
         embed.url = event.bot.invite_url
       end

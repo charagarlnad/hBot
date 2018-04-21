@@ -3,7 +3,7 @@ module Bot::DiscordEvents
   module Ready
     extend Discordrb::EventContainer
     ready do |event|
-      puts "Imgbot is ready with #{event.bot.servers.count} servers and #{event.bot.users.count} users!"
+      puts "hBot is ready with #{event.bot.servers.count} servers and #{event.bot.users.count} users!"
       event.bot.stream('i.help', 'https://www.twitch.tv/vinesauce')
     end
   end
