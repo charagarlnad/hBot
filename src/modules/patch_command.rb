@@ -84,6 +84,7 @@ module Discordrb::Commands
                 when :has_arguments_or_attachment then 'A search or attachment is required.' if event.content.split(' ').size == 1 && event.message.attachments.empty?
                 when :has_arguments then 'A search is required.' if event.content.split(' ').size == 1
                 when :arguments_is_int then 'That is not a number.' unless event.content.split(' ')[1].i?
+                when :user_in_voice then 'You are not in voice.' unless event.user.voice_channel
                 end
         next unless error
         event.send_timed_embed do |e|
