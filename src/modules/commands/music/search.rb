@@ -2,15 +2,8 @@ module Bot::DiscordCommands
   module Music
     extend Discordrb::Commands::CommandContainer
     command(:search, requirements: [:in_voice, :has_arguments], type: :Music, description: 'Search for a [**Video/Search**] to add to the music queue.') do |event, *search|
-      videos = []
+      videos = request_vid(:search, search.join(' '))
       index = 0
-      Thread.new do
-        IO.popen("youtube-dl --restrict-filenames -o \"data/musiccache/%(title)s\" --dump-json \"ytsearch8:#{search.join(' ')}\"") do |pipe|
-          pipe.each do |video|
-            videos << video
-          end
-        end
-      end
 
       emb = event.channel.send_embed("Video #{index + 1}/8:", @newemb.call(event, video: @query.call(videos, event, index: index)))
 

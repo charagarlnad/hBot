@@ -17,13 +17,13 @@ module Bot::DiscordCommands
     @query = lambda do |ytdl, event, bassboost: false, index: nil|
       if index
         sleep(0.1) until ytdl.length >= index + 1
-        currvideo = JSON.parse(ytdl[index]).with_indifferent_access
+        currvideo = ytdl[index]
       else
-        currvideo = JSON.parse(ytdl).with_indifferent_access
+        currvideo = ytdl
       end
       {}.tap do |video|
         video[:description] = currvideo[:description] || 'N/A'
-        video[:title] = currvideo[:fulltitle] || 'N/A'
+        video[:title] = currvideo[:title] || 'N/A'
         video[:url] = currvideo[:webpage_url] || 'N/A'
         video[:thumbnail_url] = currvideo[:thumbnails] ? currvideo[:thumbnails].first[:url] : event.bot.profile.avatar_url
         video[:like_count] = currvideo[:like_count] || 'N/A'
@@ -35,6 +35,38 @@ module Bot::DiscordCommands
         video[:bassboost] = bassboost
         video[:event] = event
       end
+    end
+
+    # About a 1 to 1.5 second improvement over calling youtube-dl as a program every time.
+    Process.spawn('python3 ytdl_host.py')
+    sleep(0.5)
+    @socket = UNIXSocket.new('test.s')
+    @request_lock = Mutex.new
+    def self.request_vid(request, args)
+      @request_lock.lock
+      value =
+        if request == :play
+          @socket.puts('play ' + args)
+          response = @socket.recv(16777216).chomp
+          JSON.parse(response).with_indifferent_access
+        elsif request == :search
+          @socket.puts('search ' + args)
+          videos = []
+          8.times do
+            response = @socket.recv(16777216).chomp
+            videos << JSON.parse(response).with_indifferent_access
+          end
+          videos
+        elsif request == :download
+          @socket.puts('download ' + args)
+          response = @socket.recv(16777216).chomp
+          true
+        elsif request == :kill
+          @socket.puts('kill')
+          true
+        end
+      @request_lock.unlock
+      value
     end
 
     def self.seconds_to_str(seconds)
@@ -52,10 +84,10 @@ module Bot::DiscordCommands
         elsif search.length == 1 && search.first.start_with?('http')
           search.first
         else
-          "\"ytsearch1:#{search.join(' ')}\""
+          search.join(' ')
         end
 
-      youtubedl = `youtube-dl --restrict-filenames -o "data/musiccache/#{'bassboost-' if bassboost}%(title)s" --dump-json #{vidsearch}`
+      youtubedl = request_vid(:play, vidsearch)
 
       add_video(@query.call(youtubedl, event, bassboost: bassboost))
 
@@ -71,7 +103,7 @@ module Bot::DiscordCommands
     def self.add_video(video)
       unless File.file?(video[:location])
         video[:downloader] = Thread.new do
-          system("youtube-dl -q --restrict-filenames --format best --recode-video mp4 -o \"data/musiccache/%(title)s.%(ext)s\" #{video[:url]}") unless File.file?(video[:location].sub('/bassboost-', '/'))
+          request_vid(:download, video[:url])
           system("ffmpeg -loglevel panic -i #{video[:location].sub('/bassboost-', '/')} -af bass=g=20:f=200 #{video[:location]}") if video[:location].include? '/bassboost-'
         end
       end
