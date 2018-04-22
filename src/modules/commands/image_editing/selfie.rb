@@ -7,7 +7,7 @@ module Bot::DiscordCommands
 
       canvas.composite!(append_image, Magick::SouthWestGravity, 0, 0, Magick::OverCompositeOp)
 
-      upload = Tempfile.new(['imgbot', '.png'])
+      upload = Tempfile.new(['hBot', '.png'])
       canvas.write(upload.path)
       event.channel.send_file upload
 

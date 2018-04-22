@@ -82,6 +82,7 @@ while True:
     elif line.startswith('download '):
         line = line.replace('download ', '')
         youtube_dl.YoutubeDL(download_opts).download([line])
+        # make this convert to mp4 if it isnt already
         conn.send(bytes('downloaded', 'UTF-8'))
     elif line.startswith('search '):
         line = line.replace('search ', '')

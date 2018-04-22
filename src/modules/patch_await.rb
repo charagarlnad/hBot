@@ -1,12 +1,4 @@
 module Discordrb::Events
-  class ReactionEvent < Event
-    # https://github.com/meew0/discordrb/commit/445d9a51cf844cc76a2ce02ab3bd9ef8e3ff8653#diff-974b556cee7010d55a760589d63a82c8
-    # Remember to remove after the commit is merged
-    def server
-      @server ||= channel.server
-    end
-  end
-
   class ReactionEventHandler < EventHandler
     def matches?(event)
       # Check for the proper event type

@@ -7,7 +7,7 @@ module Bot::DiscordCommands
       Discordrb::Webhooks::Embed.new.tap do |embed|
         embed.title = video[:title]
         embed.description = video[:description][0..1023]
-        embed.add_field(name: 'Video info', value: "#{video[:like_count]}#{$like} / #{video[:dislike_count]}#{$dislike}, #{video[:view_count]} Views, Length: #{queue ? "#{seconds_to_str(event.voice.stream_time.to_i)}/" : ''}#{seconds_to_str(video[:length])}#{', Bass Boost enabled' if video[:bassboost]}")
+        embed.add_field(name: 'Video info', value: "#{video[:like_count]}#{$like} / #{video[:dislike_count]}#{$dislike}, #{video[:view_count]} Views, Length: #{queue ? "#{seconds_to_str(event.voice.stream_time.to_i)}/" : ''}#{seconds_to_str(video[:length])}#{', bass boost enabled' if video[:bassboost]}")
         embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: video[:thumbnail_url])
         embed.url = video[:url]
         embed.color = color
@@ -120,7 +120,7 @@ module Bot::DiscordCommands
             sleep(0.1) while $masterqueue[event.server.id].first[:downloader].alive?
           end
 
-          emb = event.channel.send_embed('Now playing:', @newemb.call(event, color: $othercolor))
+          emb = event.channel.send_embed($masterqueue[event.server.id].first[:loop] ? 'Now looping:' : 'Now playing:', @newemb.call(event, color: $othercolor))
           event.bot.listening = $masterqueue[event.server.id].first[:title]
           event.voice.play_file($masterqueue[event.server.id].first[:location])
 
