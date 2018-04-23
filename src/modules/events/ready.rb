@@ -4,7 +4,7 @@ module Bot::DiscordEvents
     extend Discordrb::EventContainer
     ready do |event|
       puts "hBot is ready with #{event.bot.servers.count} servers and #{event.bot.users.count} users!"
-      event.bot.stream('i.help', 'https://www.twitch.tv/vinesauce')
+      event.bot.stream("#{event.bot.prefix}help", 'https://www.twitch.tv/vinesauce')
     end
   end
 end

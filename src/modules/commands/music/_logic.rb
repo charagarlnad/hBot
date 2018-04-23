@@ -1,13 +1,12 @@
 module Bot::DiscordCommands
   module Music
-    extend Discordrb::Commands::CommandContainer
     $masterqueue = Hash.new { |h, k| h[k] = [] }
 
     @newemb = lambda do |event, color: $normalcolor, video: $masterqueue[event.server.id].first, queue: false|
       Discordrb::Webhooks::Embed.new.tap do |embed|
         embed.title = video[:title]
         embed.description = video[:description][0..1023]
-        embed.add_field(name: 'Video info', value: "#{video[:like_count]}#{$like} / #{video[:dislike_count]}#{$dislike}, #{video[:view_count]} Views, Length: #{queue ? "#{seconds_to_str(event.voice.stream_time.to_i)}/" : ''}#{seconds_to_str(video[:length])}#{', bass boost enabled' if video[:bassboost]}")
+        embed.add_field(name: 'Video info', value: "#{video[:like_count]}#{$like} / #{video[:dislike_count]}#{$dislike}, #{video[:view_count]} Views, Length: #{queue ? "#{seconds_to_str(event.voice.stream_time.to_i + video[:skipped_time])}/" : ''}#{seconds_to_str(video[:length])}#{', bass boost enabled' if video[:bassboost]}")
         embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: video[:thumbnail_url])
         embed.url = video[:url]
         embed.color = color
@@ -34,6 +33,7 @@ module Bot::DiscordCommands
         video[:loop] = false
         video[:bassboost] = bassboost
         video[:event] = event
+        video[:skipped_time] = 0
       end
     end
 
@@ -54,6 +54,7 @@ module Bot::DiscordCommands
           videos = []
           8.times do
             response = @socket.recv(16777216).chomp
+            puts response.size
             videos << JSON.parse(response).with_indifferent_access
           end
           videos
@@ -121,7 +122,6 @@ module Bot::DiscordCommands
           end
 
           emb = event.channel.send_embed($masterqueue[event.server.id].first[:loop] ? 'Now looping:' : 'Now playing:', @newemb.call(event, color: $othercolor))
-          event.bot.listening = $masterqueue[event.server.id].first[:title]
           event.voice.play_file($masterqueue[event.server.id].first[:location])
 
           emb.delete
