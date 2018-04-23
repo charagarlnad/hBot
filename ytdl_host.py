@@ -29,7 +29,11 @@ download_opts = {
     'restrictfilenames': True,
     'outtmpl': 'data/musiccache/%(title)s.%(ext)s',
     'format': 'best',
-    'recodevideo': 'mp4'
+    'postprocessors': [{
+        'key': 'FFmpegVideoConvertor',
+        'preferedformat': 'mp4'
+    }]
+    # https://github.com/rg3/youtube-dl/blob/0c3e5f4921760f0d5c743c47a1205f734b67fcb7/youtube_dl/__init__.py#L262
 }
 
 if os.path.exists('test.s'):
