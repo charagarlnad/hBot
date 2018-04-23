@@ -1,5 +1,5 @@
 # hBot
-[![Build Status](https://travis-ci.org/charagarlnad/imgbot.svg?branch=master)](https://travis-ci.org/charagarlnad/imgbot)
+[![Build Status](https://travis-ci.org/charagarlnad/hBot.svg?branch=master)](https://travis-ci.org/charagarlnad/hBot)
 
 A simple bot in ruby that has multiple modules, such as a music bot (with working queue)!
 

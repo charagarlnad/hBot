@@ -54,7 +54,6 @@ module Bot::DiscordCommands
           videos = []
           8.times do
             response = @socket.recv(16777216).chomp
-            puts response.size
             videos << JSON.parse(response).with_indifferent_access
           end
           videos
