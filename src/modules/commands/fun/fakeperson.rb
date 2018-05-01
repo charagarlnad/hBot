@@ -1,11 +1,11 @@
 module Bot::DiscordCommands
-  module Other
+  module Fun
     extend Discordrb::Commands::CommandContainer
-    command(:fakeperson, type: :Other, description: 'Generate a random fake person.') do |event|
+    command(:fakeperson, type: :Fun, description: 'Generate a random fake person.') do |event|
       event.channel.send_embed do |embed|
         embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: Faker::Avatar.image)
         embed.author = Discordrb::Webhooks::EmbedAuthor.new(name: Faker::Name.name)
-        embed.color = $defaultcolor
+        embed.color = Bot.normalcolor
 
         embed.add_field(name: 'Address', value: "#{Faker::Address.street_address}, #{Faker::Address.city}, #{Faker::Address.state} #{Faker::Address.zip}", inline: true)
         embed.add_field(name: 'Profession', value: Faker::Company.profession.capitalize, inline: true)

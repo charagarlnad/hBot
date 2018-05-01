@@ -80,9 +80,9 @@ module Discordrb::Commands
                 when :owner then 'Only the bot owner can use this command.' unless Bot::CONFIG[:owner_id] == event.user.id
                 when :in_voice then 'I am not in voice.' if event.voice.nil?
                 when :playing then 'There is nothing playing.' unless event.voice.playing?
-                when :queue_not_empty then 'There is nothing in the queue.' if $masterqueue[event.server.id].empty?
+                when :queue_not_empty then 'There is nothing in the queue.' if Bot.masterqueue[event.server.id].empty?
                 when :has_arguments_or_attachment then 'A search or attachment is required.' if event.content.split(' ').size == 1 && event.message.attachments.empty?
-                when :has_arguments then 'A search is required.' if event.content.split(' ').size == 1
+                when :has_arguments then 'Arguments are required for this command.' if event.content.split(' ').size == 1
                 when :arguments_is_int then 'That is not a number.' unless event.content.split(' ')[1].i?
                 when :user_in_voice then 'You are not in voice.' unless event.user.voice_channel
                 end

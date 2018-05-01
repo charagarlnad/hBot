@@ -1,12 +1,10 @@
 module Bot::DiscordCommands
   module Music
-    $masterqueue = Hash.new { |h, k| h[k] = [] }
-
-    @newemb = lambda do |event, color: $normalcolor, video: $masterqueue[event.server.id].first, queue: false|
+    @newemb = lambda do |event, color: Bot.normalcolor, video: Bot.masterqueue[event.server.id].first, queue: false|
       Discordrb::Webhooks::Embed.new.tap do |embed|
         embed.title = video[:title]
         embed.description = video[:description][0..1023]
-        embed.add_field(name: 'Video info', value: "#{video[:like_count]}#{$like} / #{video[:dislike_count]}#{$dislike}, #{video[:view_count]} Views, Length: #{queue ? "#{seconds_to_str(event.voice.stream_time.to_i + video[:skipped_time])}/" : ''}#{seconds_to_str(video[:length])}#{', bass boost enabled' if video[:bassboost]}")
+        embed.add_field(name: 'Video info', value: "#{video[:like_count]}#{Bot.like} / #{video[:dislike_count]}#{Bot.dislike}, #{video[:view_count]} Views, Length: #{queue ? "#{seconds_to_str(event.voice.stream_time.to_i + video[:skipped_time])}/" : ''}#{seconds_to_str(video[:length])}#{', bass boost enabled' if video[:bassboost]}")
         embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: video[:thumbnail_url])
         embed.url = video[:url]
         embed.color = color
@@ -38,7 +36,6 @@ module Bot::DiscordCommands
     end
 
     # About a 1 to 1.5 second improvement over calling youtube-dl as a program every time.
-    Process.spawn('python3 ytdl_host.py')
     sleep(0.5)
     @socket = UNIXSocket.new('test.s')
     @request_lock = Mutex.new
@@ -48,13 +45,13 @@ module Bot::DiscordCommands
         if request == :play
           @socket.puts('play ' + args)
           response = @socket.recv(16777216).chomp
-          JSON.parse(response).with_indifferent_access
+          JSON.parse(response).symbolize_keys
         elsif request == :search
           @socket.puts('search ' + args)
           videos = []
           8.times do
             response = @socket.recv(16777216).chomp
-            videos << JSON.parse(response).with_indifferent_access
+            videos << JSON.parse(response).symbolize_keys
           end
           videos
         elsif request == :download
@@ -91,12 +88,12 @@ module Bot::DiscordCommands
 
       add_video(@query.call(youtubedl, event, bassboost: bassboost))
 
-      event.send_timed_embed('Ok, adding to queue:', @newemb.call(event, video: $masterqueue[event.server.id].last))
+      event.send_timed_embed('Ok, adding to queue:', @newemb.call(event, video: Bot.masterqueue[event.server.id].last))
     rescue => error
       event.send_timed_embed do |embed|
         embed.description = 'Invalid file/search.'
         embed.add_field(name: 'Tell a developer:', value: "#{error.class};\n#{error}", inline: true)
-        embed.color = $errorcolor
+        embed.color = Bot.errorcolor
       end
     end
 
@@ -108,24 +105,24 @@ module Bot::DiscordCommands
         end
       end
 
-      $masterqueue[video[:event].server.id] << video
-      start_player(video[:event]) if $masterqueue[video[:event].server.id].length == 1
+      Bot.masterqueue[video[:event].server.id] << video
+      start_player(video[:event]) if Bot.masterqueue[video[:event].server.id].length == 1
     end
 
     def self.start_player(event)
       Thread.new do
-        until $masterqueue[event.server.id].empty?
+        until Bot.masterqueue[event.server.id].empty?
 
-          unless $masterqueue[event.server.id].first[:downloader].nil?
-            sleep(0.1) while $masterqueue[event.server.id].first[:downloader].alive?
+          unless Bot.masterqueue[event.server.id].first[:downloader].nil?
+            sleep(0.1) while Bot.masterqueue[event.server.id].first[:downloader].alive?
           end
 
-          emb = event.channel.send_embed($masterqueue[event.server.id].first[:loop] ? 'Now looping:' : 'Now playing:', @newemb.call(event, color: $othercolor))
-          event.voice.play_file($masterqueue[event.server.id].first[:location])
+          emb = event.channel.send_embed(Bot.masterqueue[event.server.id].first[:loop] ? 'Now looping:' : 'Now playing:', @newemb.call(event, color: Bot.othercolor))
+          event.voice.play_file(Bot.masterqueue[event.server.id].first[:location])
 
           emb.delete
 
-          $masterqueue[event.server.id].shift unless $masterqueue[event.server.id].first&.[](:loop)
+          Bot.masterqueue[event.server.id].shift unless Bot.masterqueue[event.server.id].first&.[](:loop)
         end
       end
       nil

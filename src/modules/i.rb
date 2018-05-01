@@ -6,3 +6,9 @@ class String
     false
   end
 end
+
+class NilClass
+  def i?
+    false
+  end
+end

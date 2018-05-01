@@ -2,7 +2,7 @@ module Bot::DiscordCommands
   module Owner
     extend Discordrb::Commands::CommandContainer
     File.new('data/blacklist.txt', 'w') unless File.file?('data/blacklist.txt')
-    File.read('data/blacklist.txt').each_line { |user| Bot::BOT.ignore_user(user) }
+    File.read('data/blacklist.txt').each_line { |user| Bot::HBOT.ignore_user(user) }
     command(:blacklist, type: :Owner, description: 'Blacklist a user from the bot.', requirements: [:owner]) do |event, mention|
       user = event.bot.parse_mention(mention)
       event.send_embed do |embed|

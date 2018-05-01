@@ -1,6 +1,7 @@
 # Gems
 require 'yaml'
 
+require 'digest/md5'
 require 'discordrb'
 require 'rmagick'
 require 'opencv'
@@ -8,32 +9,43 @@ require 'faker'
 require 'mediawiki-butt'
 require 'nokogiri'
 require 'filesize'
-require 'active_support/core_ext/hash'
 
 # The main bot module.
 module Bot
+  # Define all variables and use a hacky way to expose them as 'instance variables' in a module.
+  @messages = 0
+  @embedtimeout = 30
+  @normalcolor = 0x7289DA
+  @othercolor = 0x89DA72
+  @errorcolor = 0xDA7289
+  @leftarrow = '⬅'.freeze
+  @rightarrow = '➡'.freeze
+  @checkmark = '✔'.freeze
+  @trashcan = '🗑'.freeze
+  @like = '<:likes:434777642353295371>'.freeze
+  @dislike = '<:dislikes:434777663929057290>'.freeze
+  @ruby = '<:ruby:436696214264741890>'.freeze
+  @masterqueue = Hash.new { |h, k| h[k] = [] }
+  @ytdl_host = Process.spawn('python3 ytdl_host.py')
+
+  class << self
+    [:messages, :embedtimeout, :normalcolor, :othercolor, :errorcolor, :leftarrow, :rightarrow, :checkmark, :trashcan, :like, :dislike, :ruby, :masterqueue, :ytdl_host].each do |var|
+      attr_accessor var
+    end
+  end
+
   # Load non-Discordrb modules
   Dir['src/modules/*.rb'].each { |mod| load mod }
+  puts 'Loaded mods'
 
   # Bot configuration
-  CONFIG = (YAML.load_file 'data/config.yaml').with_indifferent_access.freeze
-
-  $embedtimeout = 30
-  $normalcolor = 0x7289DA
-  $othercolor = 0x89DA72
-  $errorcolor = 0xDA7289
-  $leftarrow = '⬅'.freeze
-  $rightarrow = '➡'.freeze
-  $checkmark = '✔'.freeze
-  $trashcan = '🗑'.freeze
-  $like = '<:likes:434777642353295371>'.freeze
-  $dislike = '<:dislikes:434777663929057290>'.freeze
-  $ruby = '<:ruby:436696214264741890>'.freeze
+  CONFIG = (YAML.load_file 'data/config.yaml').symbolize_keys.freeze
+  puts 'Loaded config'
 
   # Create the bot.
   # The bot is created as a constant, so that you
   # can access the cache anywhere.
-  BOT = Discordrb::Commands::CommandBot.new(token: CONFIG[:token], prefix: CONFIG[:prefix], help_available: false) # log_mode: :debug
+  HBOT = Discordrb::Commands::CommandBot.new(token: CONFIG[:token], prefix: CONFIG[:prefix], help_available: false) # log_mode: :debug
 
   # This class method wraps the module lazy-loading process of discordrb command
   # and event modules. Any module name passed to this method will have its child
@@ -49,7 +61,7 @@ module Bot
     const_set(klass.to_sym, new_module)
     Dir["src/modules/#{path}/**/*.rb"].each { |file| load file }
     new_module.constants.each do |mod|
-      BOT.include! new_module.const_get(mod)
+      HBOT.include! new_module.const_get(mod)
     end
   end
 
@@ -57,5 +69,5 @@ module Bot
   load_modules(:DiscordCommands, 'commands')
 
   # Run the bot
-  BOT.run
+  HBOT.run
 end

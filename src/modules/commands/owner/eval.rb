@@ -4,7 +4,7 @@ module Bot::DiscordCommands
     command(:eval, type: :Owner, description: 'Evaluate [**Ruby code**] on the bot.', requirements: [:owner]) do |event, *code|
       output = (eval code.join(' ')).to_s
       event.send_embed do |embed|
-        embed.title = "#{$ruby} Eval"
+        embed.title = "#{Bot.ruby} Eval"
         embed.description =
           if output.size <= 2000
             output

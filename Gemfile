@@ -1,5 +1,4 @@
 source 'https://rubygems.org'
-gem 'activesupport'
 gem 'discordrb', git: 'https://github.com/meew0/discordrb.git'
 gem 'faker'
 gem 'filesize'

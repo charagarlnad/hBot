@@ -26,8 +26,8 @@ module Bot::DiscordCommands
 
       emb = event.channel.send_embed('Page 1:', embed.call(searchresults, pagenum, event))
 
-      event.bot.add_await(:"leftarrow#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: $rightarrow, from: event.author, message: emb) do
-        emb.delete_reaction(event.author, $rightarrow)
+      event.bot.add_await(:"leftarrow#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: Bot.rightarrow, from: event.author, message: emb) do
+        emb.delete_reaction(event.author, Bot.rightarrow)
         if pagenum + 1 <= searchresults.size
           pagenum += 1
           emb.edit("Page #{pagenum + 1}:", embed.call(searchresults, pagenum, event))
@@ -37,8 +37,8 @@ module Bot::DiscordCommands
         false
       end
 
-      event.bot.add_await(:"rightarrow#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: $leftarrow, from: event.author, message: emb) do
-        emb.delete_reaction(event.author, $leftarrow)
+      event.bot.add_await(:"rightarrow#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: Bot.leftarrow, from: event.author, message: emb) do
+        emb.delete_reaction(event.author, Bot.leftarrow)
         if pagenum > 0
           pagenum -= 1
           emb.edit("Page #{pagenum + 1}:", embed.call(searchresults, pagenum, event))
@@ -48,14 +48,14 @@ module Bot::DiscordCommands
         false
       end
 
-      event.bot.add_await(:"trashcan#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: $trashcan, from: event.author, message: emb) do
+      event.bot.add_await(:"trashcan#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: Bot.trashcan, from: event.author, message: emb) do
         event.bot.awaits.except!(:"leftarrow#{emb.id}", :"rightarrow#{emb.id}", :"trashcan#{emb.id}")
         emb.delete
       end
 
-      emb.react($leftarrow)
-      emb.react($rightarrow)
-      emb.react($trashcan)
+      emb.react(Bot.leftarrow)
+      emb.react(Bot.rightarrow)
+      emb.react(Bot.trashcan)
 
       nil
     end

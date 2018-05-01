@@ -25,9 +25,6 @@ Style/Documentation:
 Style/FrozenStringLiteralComment:
   Enabled: false
 
-Style/GlobalVars:
-  Enabled: false
-
 Style/NumericLiterals:
   Enabled: false
   
@@ -38,4 +35,7 @@ Style/RescueStandardError:
   EnforcedStyle: implicit
 
 Style/SymbolArray:
+  EnforcedStyle: brackets
+
+Style/WordArray:
   EnforcedStyle: brackets

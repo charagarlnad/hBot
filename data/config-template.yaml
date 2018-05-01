@@ -1,9 +1,12 @@
 ---
-# Discord API client token
-token:
+  # Discord API client token
+  token:
 
-# Command prefix
-prefix:
+  # Command prefix
+  prefix:
 
-# ID of bot owner
-owner:
+  # ID of bot owner
+  owner:
+
+  # OpenWeatherMap API key
+  owm_token:
