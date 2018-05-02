@@ -12,6 +12,7 @@ module Bot::DiscordCommands
 
       event.channel.send_embed do |embed|
         embed.title = 'hBot Stats'
+        embed.add_field(name: '💻 Version', value: "Local: #{Bot.local_commits.first}\nGit: #{Bot.remote_commits.first}")
         embed.add_field(name: '🕒 Uptime', value: seconds_to_units(Time.now - starttime), inline: true)
         embed.add_field(name: '🏓 Ping', value: "#{ping}ms", inline: true)
         embed.add_field(name: '🎶 Music cache size', value: Filesize.from(total_size.to_s + ' B').pretty, inline: true)
