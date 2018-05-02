@@ -39,6 +39,11 @@ module Bot
   puts 'Loaded mods'
 
   # Bot configuration
+  unless File.file?('data/config.yaml')
+    puts 'You didn\'t make a config file! Make the config file and start the bot again.'
+    Process.kill 'TERM', @ytdl_host
+    exit!
+  end
   CONFIG = (YAML.load_file 'data/config.yaml').symbolize_keys.freeze
   puts 'Loaded config'
 
