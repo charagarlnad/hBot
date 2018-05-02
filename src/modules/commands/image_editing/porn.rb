@@ -1,24 +1,19 @@
 module Bot::DiscordCommands
   module ImageEditing
     extend Discordrb::Commands::CommandContainer
+    porn = Magick::Image.read('data/command_data/porn/source.png').first
+    porn_mask = Magick::Image.read('data/command_data/porn/mask.png').first.negate
+    porn_mask.matte = false
     command(:porn, type: :'Image Editing') do |event|
-      canvas = Magick::Image.read('data/command_data/porn/source.png').first
-      mask = Magick::Image.read('data/command_data/porn/mask.png').first.negate
-      mask.matte = false
-
       append_image = Magick::Image.from_blob(event.image_source).first.scale(846, 478)
 
-      append_image.composite!(mask, Magick::CenterGravity, -45, -120, Magick::CopyOpacityCompositeOp)
-      canvas.composite!(append_image, Magick::CenterGravity, 45, 120, Magick::OverCompositeOp)
+      append_image.composite!(porn_mask, Magick::CenterGravity, -45, -120, Magick::CopyOpacityCompositeOp)
+      result = porn.composite(append_image, Magick::CenterGravity, 45, 120, Magick::OverCompositeOp)
 
-      upload = Tempfile.new(['hBot', '.png'])
-      canvas.write(upload.path)
-      event.channel.send_file upload
+      event.channel.send_file BinaryImage.new(result.to_blob, "#{event.message.id}.png")
 
-      upload.close!
-      canvas.destroy!
-      mask.destroy!
       append_image.destroy!
+      result.destroy!
 
       nil
     end

@@ -1,20 +1,16 @@
 module Bot::DiscordCommands
   module ImageEditing
     extend Discordrb::Commands::CommandContainer
+    intelligence = Magick::Image.read('data/command_data/intelligence/source.png').first
     command(:intelligence, type: :'Image Editing') do |event|
-      canvas = Magick::Image.read('data/command_data/intelligence/source.png').first
-
       append_image = Magick::Image.from_blob(event.image_source).first.resize_to_fit(662, 512)
 
-      canvas.composite!(append_image, Magick::CenterGravity, 0, 215, Magick::OverCompositeOp)
+      result = intelligence.composite(append_image, Magick::CenterGravity, 0, 215, Magick::OverCompositeOp)
 
-      upload = Tempfile.new(['hBot', '.png'])
-      canvas.write(upload.path)
-      event.channel.send_file upload
+      event.channel.send_file BinaryImage.new(result.to_blob, "#{event.message.id}.png")
 
-      upload.close!
-      canvas.destroy!
       append_image.destroy!
+      result.destroy!
 
       nil
     end
