@@ -8,27 +8,32 @@ If you just want to add the bot to your Discord server, just [click here.](https
 
 ## Installing
 
-1. Install [RVM](https://rvm.io/rvm/install) using Ruby >= 2.5.
+1. Clone the github repo.
+```
+git clone https://github.com/charagarlnad/hBot.git
+```
 
-2. Install libopus, libsodium, OpenCV, cowsay, FFMPEG, ImageMagick, Youtube-DL and Python3.
+2. Install [RVM](https://rvm.io/rvm/install) using Ruby >= 2.5.
 
-3. Install Bundler.
+3. Install libopus, libsodium, OpenCV, cowsay, FFMPEG, ImageMagick, Youtube-DL and Python3.
+
+4. Install Bundler.
 
 ```
 gem install bundler
 ```
 
-4. Install the rest of the gems with Bundler.
+5. Install the rest of the gems with Bundler.
 
 ```
 bundle install
 ```
 
-5. Rename data/config-template.yaml to config.yaml and fill out the required fields.
+6. Rename data/config-template.yaml to config.yaml and fill out the required fields.
 
-6. [Optional] Change global variables the bot uses in the main src/bot.rb file.
+7. [Optional] Change global variables the bot uses in the main src/bot.rb file.
 
-6. Run the bot.
+8. Run the bot.
 
 ```
 bundle exec ruby run.rb
