@@ -12,6 +12,18 @@ require 'filesize'
 
 # The main bot module.
 module Bot
+  # Get git status and check if bot is outdated.
+  `git fetch`
+  local_commits = `git rev-list master`.split("\n")
+  remote_commits = `git rev-list origin/master`.split("\n")
+  if local_commits.size == remote_commits.size
+    puts "You are running the latest version of hBot, commit #{local_commits.first}"
+  elsif local_commits.size <= remote_commits.size
+    puts "You are not running the latest version of hBot, local copy @ commit #{local_commits.first}, github @ #{remote_commits.first}. Run the update command to update."
+  else
+    puts "You are running a non-existent version of hBot, local copy @ commit #{local_commits.first}, github @ #{remote_commits.first}"
+  end
+
   # Define all variables and use a hacky way to expose them as 'instance variables' in a module.
   @messages = 0
   @embedtimeout = 30
