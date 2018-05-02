@@ -57,9 +57,13 @@ module Bot
   # @param path [String] the path underneath `src/modules/` to load files from
   # "src/modules/#{path}/**/*.rb" loads from all subfolders and the main folder
   def self.load_modules(klass, path)
+    # Creates a new base module Bot::
     new_module = Module.new
+    # And then set it to DiscordEvents/DiscordCommands
     const_set(klass.to_sym, new_module)
+    # Then load in each ruby file, which will be included into that module because they all are module Bot::DiscordCommands
     Dir["src/modules/#{path}/**/*.rb"].each { |file| load file }
+    # And finally loop through each submodule IE fun, music
     new_module.constants.each do |mod|
       HBOT.include! new_module.const_get(mod)
     end
