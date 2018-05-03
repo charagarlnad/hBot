@@ -44,13 +44,21 @@ module Bot::DiscordCommands
       value =
         if request == :play
           @socket.puts('play ' + args)
-          response = @socket.recv(16777216).chomp
+          response = ''
+          until response.end_with?('|||END|||')
+            response << @socket.recv(8192).chomp
+          end
+          response.sub!('|||END|||', '')
           JSON.parse(response).symbolize_keys
         elsif request == :search
           @socket.puts('search ' + args)
           videos = []
           8.times do
-            response = @socket.recv(16777216).chomp
+            response = ''
+            until response.end_with?('|||END|||')
+              response << @socket.recv(8192).chomp
+            end
+            response.sub!('|||END|||', '')
             videos << JSON.parse(response).symbolize_keys
           end
           videos

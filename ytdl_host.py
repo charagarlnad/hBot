@@ -71,7 +71,7 @@ def start_search(index, line):
     with youtube_dl.YoutubeDL(search_opts) as ydl:
         vid = ydl.extract_info(('ytsearch8:' + line))['entries'][0]
         vid['_filename'] = ydl.prepare_filename(vid)
-        conn.send(bytes(json.dumps(vid), 'UTF-8'))
+        conn.send(bytes(json.dumps(vid) + '|||END|||', 'UTF-8'))
 
 # Receive data from client
 while True:
@@ -82,7 +82,7 @@ while True:
         line = line.replace('play ', '')
         search = youtube_dl.YoutubeDL(play_opts).extract_info(('ytsearch1:' + line))['entries'][0]
         search['_filename'] = youtube_dl.YoutubeDL(play_opts).prepare_filename(search)
-        conn.send(bytes(json.dumps(search), 'UTF-8'))
+        conn.send(bytes(json.dumps(search) + '|||END|||', 'UTF-8'))
     elif line.startswith('download '):
         line = line.replace('download ', '')
         youtube_dl.YoutubeDL(download_opts).download([line])
