@@ -3,7 +3,7 @@ module Bot::DiscordCommands
     extend Discordrb::Commands::CommandContainer
     command(:uinfo, type: :General, description: 'Get a list of statistics about the user that runs the command.') do |event, mention|
       # Allow just typing name without a mention
-      user = 
+      user =
         if mention&.match?(/<@!?\d{10,}>/)
           event.bot.parse_mention(mention).on(event.server)
         else
