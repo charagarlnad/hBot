@@ -14,9 +14,23 @@ class Video
     @event = event
     @skipped_time = 0
     @filters = video_hash[:filters] || []
-    @location.sub!('data/musiccache/', "data/musiccache/ffmpeg-#{filters.map(&:chr).join}-") if @filters.any?
   end
 
+  # Get the location of the video object, either ffmpeg-ed or not.
+  def location
+    if @filters.any?
+      @location.sub('data/musiccache/', "data/musiccache/ffmpeg-#{filters.map(&:chr).join}-")
+    else
+      @location
+    end
+  end
+
+  # Returns the base video object without any ffmpeg prefixes (if there are any).
+  def base_location
+    @location
+  end
+
+  # Returns the arguments to be passed into ffmpeg to apply the filters.
   def ffmpeg_arguments
     args = []
     @filters.each do |filter|
@@ -33,11 +47,6 @@ class Video
     args.join(', ')
   end
 
-  # Returns the base video object without any ffmpeg prefixes (if there are any).
-  def base_location
-    @location.sub("/ffmpeg-#{@filters.map(&:chr).join}-", '/')
-  end
-
   attr_reader :description
   attr_reader :title
   attr_reader :url
@@ -46,7 +55,6 @@ class Video
   attr_reader :dislike_count
   attr_reader :view_count
   attr_reader :length
-  attr_reader :location
   attr_accessor :loop
   attr_reader :event
   attr_accessor :skipped_time

@@ -28,6 +28,8 @@ module Bot::DiscordCommands
         video.symbolize_keys
       elsif video.is_a?(Array)
         video.map(&:symbolize_keys)
+      elsif video == 'error'
+        raise 'A error occured, was the URL/search incorrect?'
       else
         true
       end
@@ -47,7 +49,6 @@ module Bot::DiscordCommands
       unless File.file?(video.location)
         video.downloader = Thread.new do
           request_vid(:download, video.url) unless File.file?(video.base_location)
-          # still need to fix the rest of the commands to use .methods instead of [:methods]
           system("ffmpeg -loglevel panic -y -i #{video.base_location} -af \"#{video.ffmpeg_arguments}\" #{video.location}") unless File.file?(video.location)
         end
       end

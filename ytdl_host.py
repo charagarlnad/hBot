@@ -71,34 +71,37 @@ def start_search(index, line, videos):
 
 # Receive data from client
 while True:
-    data = conn.recv(8192)
-    line = data.decode('UTF-8').rstrip()
-    if line.startswith('play'):
-        line = line[len('play'):]
-        video = youtube_dl.YoutubeDL(play_opts).extract_info(line)
-        if 'entries' in video:
-            video = video['entries'][0]
-        video['filename'] = youtube_dl.YoutubeDL(play_opts).prepare_filename(video)
-        send_message(json.dumps(video))
-    elif line.startswith('download'):
-        line = line[len('download'):]
-        youtube_dl.YoutubeDL(download_opts).download([line])
-        send_message(json.dumps('downloaded'))
-    elif line.startswith('search'):
-        line = line[len('search'):]
-        threads = []
-        videos = []
-        for num in range(1, 9): # does 1 (inclusive) to 9 (non-inclusive)
-            thread = threading.Thread(target=start_search, args=(num, line, videos))
-            threads.append(thread)
-            thread.start()
+    try:
+        data = conn.recv(8192)
+        line = data.decode('UTF-8').rstrip()
+        if line.startswith('play'):
+            line = line[len('play'):]
+            video = youtube_dl.YoutubeDL(play_opts).extract_info(line)
+            if 'entries' in video:
+                video = video['entries'][0]
+            video['filename'] = youtube_dl.YoutubeDL(play_opts).prepare_filename(video)
+            send_message(json.dumps(video))
+        elif line.startswith('download'):
+            line = line[len('download'):]
+            youtube_dl.YoutubeDL(download_opts).download([line])
+            send_message(json.dumps('downloaded'))
+        elif line.startswith('search'):
+            line = line[len('search'):]
+            threads = []
+            videos = []
+            for num in range(1, 9): # does 1 (inclusive) to 9 (non-inclusive)
+                thread = threading.Thread(target=start_search, args=(num, line, videos))
+                threads.append(thread)
+                thread.start()
 
-        for thread in threads:
-            thread.join()
+            for thread in threads:
+                thread.join()
 
-        send_message(json.dumps(videos))
-    elif line.startswith('kill'):
-        send_message(json.dumps('exiting'))
-        break
+            send_message(json.dumps(videos))
+        elif line.startswith('kill'):
+            send_message(json.dumps('exiting'))
+            break
+    except:
+        send_message(json.dumps('error'))
 
 s.close()
