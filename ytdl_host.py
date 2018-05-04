@@ -1,5 +1,5 @@
+import copy
 import socket
-import sys
 import os
 import json
 import threading
@@ -16,12 +16,11 @@ class MyLogger(object):
     def error(self, msg):
         pass
 
+# https://github.com/rg3/youtube-dl/blob/0c3e5f4921760f0d5c743c47a1205f734b67fcb7/youtube_dl/__init__.py#L262
 play_opts = {
     'logger': MyLogger(),
     'restrictfilenames': True,
     'simulate': True,
-    'playliststart': 1,
-    'playlistend': 1,
     'outtmpl': 'data/musiccache/%(title)s'
 }
 download_opts = {
@@ -33,7 +32,6 @@ download_opts = {
         'key': 'FFmpegVideoConvertor',
         'preferedformat': 'mp4'
     }]
-    # https://github.com/rg3/youtube-dl/blob/0c3e5f4921760f0d5c743c47a1205f734b67fcb7/youtube_dl/__init__.py#L262
 }
 
 if os.path.exists('test.s'):
@@ -47,7 +45,7 @@ try:
     s.bind('test.s')
 except socket.error:
     print('# Bind failed. ')
-    sys.exit()
+    raise SystemExit
 
 print('# Socket bind complete')
 
@@ -59,40 +57,46 @@ print('# Socket now listening')
 conn, addr = s.accept()
 print('# Connected')
 
-def start_search(index, line):
-    search_opts = {
-        'logger': MyLogger(),
-        'restrictfilenames': True,
-        'simulate': True,
-        'playliststart': index,
-        'playlistend': index,
-        'outtmpl': 'data/musiccache/%(title)s'
-    }
+def send_message(message):
+    conn.send(bytes(message + '|||END|||', 'UTF-8'))
+
+def start_search(index, line, videos):
+    search_opts = copy.deepcopy(play_opts)
+    search_opts['playliststart'] = index
+    search_opts['playlistend'] = index
     with youtube_dl.YoutubeDL(search_opts) as ydl:
         vid = ydl.extract_info(('ytsearch8:' + line))['entries'][0]
-        vid['_filename'] = ydl.prepare_filename(vid)
-        conn.send(bytes(json.dumps(vid) + '|||END|||', 'UTF-8'))
+        vid['filename'] = ydl.prepare_filename(vid)
+        videos.append(vid)
 
 # Receive data from client
 while True:
-    data = conn.recv(16777216)
-    line = data.decode('UTF-8')    # convert to string (Python 3 only)
-    line = line.replace("\n", "")   # remove newline character
-    if line.startswith('play '):
-        line = line.replace('play ', '')
-        search = youtube_dl.YoutubeDL(play_opts).extract_info(('ytsearch1:' + line))['entries'][0]
-        search['_filename'] = youtube_dl.YoutubeDL(play_opts).prepare_filename(search)
-        conn.send(bytes(json.dumps(search) + '|||END|||', 'UTF-8'))
-    elif line.startswith('download '):
-        line = line.replace('download ', '')
+    data = conn.recv(8192)
+    line = data.decode('UTF-8').rstrip()
+    if line.startswith('play'):
+        line = line[len('play'):]
+        video = youtube_dl.YoutubeDL(play_opts).extract_info(('ytsearch1:' + line))['entries'][0]
+        video['filename'] = youtube_dl.YoutubeDL(play_opts).prepare_filename(video)
+        send_message(json.dumps(video))
+    elif line.startswith('download'):
+        line = line[len('download'):]
         youtube_dl.YoutubeDL(download_opts).download([line])
-        # make this convert to mp4 if it isnt already
-        conn.send(bytes('downloaded', 'UTF-8'))
-    elif line.startswith('search '):
-        line = line.replace('search ', '')
-        for num in range(1, 9): # does numbers 1-8 what the heck
-            threading.Thread(target=start_search, args=(num, line)).start()
-    elif line == 'kill':
+        send_message(json.dumps('downloaded'))
+    elif line.startswith('search'):
+        line = line[len('search'):]
+        threads = []
+        videos = []
+        for num in range(1, 9): # does 1 (inclusive) to 9 (non-inclusive)
+            thread = threading.Thread(target=start_search, args=(num, line, videos))
+            threads.append(thread)
+            thread.start()
+
+        for thread in threads:
+            thread.join()
+
+        send_message(json.dumps(videos))
+    elif line.startswith('kill'):
+        send_message(json.dumps('exiting'))
         break
 
 s.close()

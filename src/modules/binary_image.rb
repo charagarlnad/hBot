@@ -23,9 +23,8 @@ class BinaryImage
 
   # Returns all the file at once and disregards the amount, works for how RestClient reads from it, 5-6x faster with small files, thousands of times faster with large files.
   def read(*)
-    return nil unless @data
-    buffer = @data
+    @data
+  ensure
     @data = nil
-    buffer
   end
 end

@@ -27,7 +27,7 @@ module Bot::DiscordCommands
         video[:dislike_count] = currvideo[:dislike_count] || 'N/A'
         video[:view_count] = currvideo[:view_count] || 'N/A'
         video[:length] = currvideo[:duration] || 0
-        video[:location] = currvideo[:_filename] + '.mp4'
+        video[:location] = currvideo[:filename] + '.mp4'
         video[:loop] = false
         video[:bassboost] = bassboost
         video[:event] = event
@@ -39,39 +39,23 @@ module Bot::DiscordCommands
     sleep(0.5)
     @socket = UNIXSocket.new('test.s')
     @request_lock = Mutex.new
-    def self.request_vid(request, args)
+
+    def self.request_vid(type, args)
       @request_lock.lock
-      value =
-        if request == :play
-          @socket.puts('play ' + args)
-          response = ''
-          until response.end_with?('|||END|||')
-            response << @socket.recv(8192).chomp
-          end
-          response.sub!('|||END|||', '')
-          JSON.parse(response).symbolize_keys
-        elsif request == :search
-          @socket.puts('search ' + args)
-          videos = []
-          8.times do
-            response = ''
-            until response.end_with?('|||END|||')
-              response << @socket.recv(8192).chomp
-            end
-            response.sub!('|||END|||', '')
-            videos << JSON.parse(response).symbolize_keys
-          end
-          videos
-        elsif request == :download
-          @socket.puts('download ' + args)
-          response = @socket.recv(16777216).chomp
-          true
-        elsif request == :kill
-          @socket.puts('kill')
-          true
-        end
+      @socket.puts("#{type}#{args}")
+      response = ''
+      response << @socket.recv(8192).chomp until response.end_with?('|||END|||')
+      response.delete_suffix!('|||END|||')
+      video = JSON.parse(response)
+      if video.is_a?(Hash)
+        video.symbolize_keys
+      elsif video.is_a?(Array)
+        video.map(&:symbolize_keys)
+      else
+        true
+      end
+    ensure
       @request_lock.unlock
-      value
     end
 
     def self.seconds_to_str(seconds)
