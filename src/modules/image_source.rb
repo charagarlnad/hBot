@@ -21,7 +21,7 @@ module Discordrb::Events
           canvas.flatten_images.to_blob { |blobbify| blobbify.format = 'JPG' }
         end
       else
-        Net::HTTP.get(URI(channel.history(100).select { |msg| msg.attachments.any? }.first.attachments.first.url))
+        Net::HTTP.get(URI(channel.history(100).detect { |msg| msg.attachments.any? }.attachments.first.url))
       end
     end
   end

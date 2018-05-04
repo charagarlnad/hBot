@@ -75,7 +75,9 @@ while True:
     line = data.decode('UTF-8').rstrip()
     if line.startswith('play'):
         line = line[len('play'):]
-        video = youtube_dl.YoutubeDL(play_opts).extract_info(('ytsearch1:' + line))['entries'][0]
+        video = youtube_dl.YoutubeDL(play_opts).extract_info(line)
+        if 'entries' in video:
+            video = video['entries'][0]
         video['filename'] = youtube_dl.YoutubeDL(play_opts).prepare_filename(video)
         send_message(json.dumps(video))
     elif line.startswith('download'):

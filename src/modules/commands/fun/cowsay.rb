@@ -1,10 +1,7 @@
 module Bot::DiscordCommands
   module Fun
     extend Discordrb::Commands::CommandContainer
-    cows =
-      Dir['/usr/share/cowsay/cows/*.cow'].each do |cow|
-        cow.gsub!('/usr/share/cowsay/cows/', '').gsub!('.cow', '')
-      end
+    cows = Dir['/usr/share/cowsay/cows/*.cow'].map { |cow| cow.sub!('/usr/share/cowsay/cows/', '').sub!('.cow', '') }
     command(:cowsay, type: :Fun, description: 'Cowsay [**X**].') do |event, *text|
       if text.empty?
         event.send_embed do |embed|
