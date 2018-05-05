@@ -1,6 +1,11 @@
 # hBot
 
-[![Build Status](https://img.shields.io/travis/charagarlnad/hBot.svg?style=flat-square)](https://travis-ci.org/charagarlnad/hBot) [![License](https://img.shields.io/github/license/charagarlnad/hBot.svg?style=flat-square)](https://github.com/charagarlnad/hBot/blob/master/LICENSE) [![GitHub Issues](https://img.shields.io/github/issues-raw/charagarlnad/hBot.svg?style=flat-square)](https://github.com/charagarlnad/hBot/issues) [![Discord Invite](https://img.shields.io/discord/277977592923947018.svg?logo=discord&style=flat-square&colorB=7289DA)](https://discord.gg/bvhbNVB) [![Library](https://img.shields.io/badge/discord-rb-CC0000.svg?style=flat-square)](https://github.com/meew0/discordrb) [![Ruby](https://img.shields.io/badge/ruby-2.5-CC0000.svg?style=flat-square)](https://www.ruby-lang.org)
+[![Build Status](https://img.shields.io/travis/charagarlnad/hBot.svg?style=flat-square)](https://travis-ci.org/charagarlnad/hBot)
+[![License](https://img.shields.io/github/license/charagarlnad/hBot.svg?style=flat-square)](https://github.com/charagarlnad/hBot/blob/master/LICENSE)
+[![GitHub Issues](https://img.shields.io/github/issues-raw/charagarlnad/hBot.svg?style=flat-square)](https://github.com/charagarlnad/hBot/issues)
+[![Discord Invite](https://img.shields.io/discord/277977592923947018.svg?logo=discord&style=flat-square&colorB=7289DA)](https://discord.gg/bvhbNVB)
+[![Library](https://img.shields.io/badge/discord-rb-CC0000.svg?style=flat-square)](https://github.com/meew0/discordrb)
+[![Discord Bots](https://discordbots.org/api/widget/status/349325133606813699.svg)](https://discordbots.org/bot/349325133606813699)
 
 #### A simple modular Discord bot made in ruby.
 
