@@ -16,7 +16,7 @@ module Bot::DiscordCommands
         end
         embed.title = '**hBot (click me to invite me to your server!)**'
         embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: event.bot.profile.avatar_url)
-        embed.url = event.bot.invite_url
+        embed.url = event.bot.invite_url(permission_bits: 8)
       end
     end
   end
