@@ -85,6 +85,7 @@ module Discordrb::Commands
                 when :has_arguments then 'Arguments are required for this command.' if event.content.split(' ').size == 1
                 when :arguments_is_int then 'That is not a number.' unless event.content.split(' ')[1].i?
                 when :user_in_voice then 'You are not in voice.' unless event.user.voice_channel
+                when :nsfw then 'This command must be run in a channel marked as NSFW.' unless event.channel.nsfw
                 end
         next unless error
         event.send_timed_embed do |e|
