@@ -2,6 +2,8 @@
 require 'yaml'
 
 require 'digest/md5'
+require 'digest/sha1'
+require 'digest/sha2'
 require 'discordrb'
 require 'rmagick'
 require 'opencv'
