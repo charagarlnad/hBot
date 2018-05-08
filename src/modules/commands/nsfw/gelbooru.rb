@@ -1,7 +1,7 @@
 module Bot::DiscordCommands
   module General
     extend Discordrb::Commands::CommandContainer
-    command(:gelbooru, type: :General, description: 'Get gelbooru [**search**]. Will only return SFW results unless it is run in a NSFW channel.') do |event, *tags|
+    command(:gelbooru, type: :NSFW, description: 'Get gelbooru [**search**]. Will only return SFW results unless it is run in a NSFW channel.') do |event, *tags|
       search = JSON.parse(Net::HTTP.get(URI("https://gelbooru.com/index.php?page=dapi&s=post&json=1&limit=32&q=index&tags=#{tags.join('+')}"))).map(&:symbolize_keys)
       search =
         if event.channel.nsfw
