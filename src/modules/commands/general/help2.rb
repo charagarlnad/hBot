@@ -29,7 +29,7 @@ module Bot::DiscordCommands
       event.bot.add_await(:"leftarrow#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: Bot.rightarrow, from: event.author, message: emb) do
         emb.delete_reaction(event.author, Bot.rightarrow)
         if index + 1 < keys.size
-          index += 1 
+          index += 1
         else
           index = 0
         end
@@ -41,7 +41,7 @@ module Bot::DiscordCommands
       event.bot.add_await(:"rightarrow#{emb.id}", Discordrb::Events::ReactionAddEvent, emoji: Bot.leftarrow, from: event.author, message: emb) do
         emb.delete_reaction(event.author, Bot.leftarrow)
         if index > 0
-          index -= 1 
+          index -= 1
         else
           index = keys.size - 1
         end
