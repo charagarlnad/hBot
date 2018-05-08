@@ -123,8 +123,10 @@ module Discordrb::Commands
         event.respond(rescue_value.gsub('%exception%', exception.message)) if rescue_value.is_a?(String)
         rescue_value.call(event, exception) if rescue_value.respond_to?(:call)
       end
-
-      raise exception
+      # Sends the exception directly instead of raising it.
+      if Bot::HBOT.user(Bot::HBOT.profile.id).on(event.server).permission?(:send_messages, event.channel)
+        event.respond exception
+      end
     end
   end
 end
