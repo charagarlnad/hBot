@@ -34,15 +34,13 @@ class Video
   def ffmpeg_arguments
     args = []
     @filters.each do |filter|
-      if filter == 'bass'
-        args << 'bass=g=25:f=50'
-      elsif filter == 'echo'
-        args << 'aecho=0.8:0.6:1000:0.8'
-      elsif filter == 'ftempo'
-        args << 'atempo=1.5'
-      elsif filter == 'stempo'
-        args << 'atempo=0.5'
-      end
+      args <<
+        case filter
+        when 'bass' then 'bass=g=25:f=50'
+        when 'echo' then 'aecho=0.8:0.6:1000:0.8'
+        when 'ftempo' then 'atempo=1.5'
+        when 'stempo' then 'atempo=0.5'
+        end
     end
     args.join(', ')
   end
