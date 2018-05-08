@@ -1,7 +1,10 @@
 module Discordrb::API::Channel
   module_function
 
+  @reaction_locks = {}
   def create_reaction(token, channel_id, message_id, emoji)
+    @reaction_locks[channel_id] = Mutex.new unless @reaction_locks[channel_id]
+    @reaction_locks[channel_id].lock
     emoji = CGI.escape(emoji) unless emoji.ascii_only?
     Discordrb::API.raw_request(
       :put,
@@ -11,9 +14,12 @@ module Discordrb::API::Channel
        content_type: :json]
     )
     sleep(0.25)
+    @reaction_locks[channel_id].unlock
   end
 
   def delete_user_reaction(token, channel_id, message_id, emoji, user_id)
+    @reaction_locks[channel_id] = Mutex.new unless @reaction_locks[channel_id]
+    @reaction_locks[channel_id].lock
     emoji = CGI.escape(emoji) unless emoji.ascii_only?
     Discordrb::API.raw_request(
       :delete,
@@ -21,6 +27,7 @@ module Discordrb::API::Channel
        Authorization: token]
     )
     sleep(0.25)
+    @reaction_locks[channel_id].unlock
   end
 end
 # https://github.com/meew0/discordrb/blob/cb074e0f80c078c09ca432893c1601d28bf78adb/lib/discordrb/api/channel.rb#L142
