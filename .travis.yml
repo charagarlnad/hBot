@@ -1,11 +1,6 @@
 language: ruby
-cache: bundler
 rvm:
   - 2.5.0
-addons:
-  apt:
-    packages:
-      - libopencv-dev
 before_script:
   - gem install rubocop
 script:
