@@ -8,7 +8,7 @@ module Bot::DiscordCommands
     firmnesses = { '2' => 'Extra Soft', '3' => 'Soft', '5' => 'Medium', '8' => 'Firm' }
 
     baddragon_skus = {}
-    JSON.parse(Net::HTTP.get(URI('https://staging.bad-dragon.com/api/inventory-toy/product-list'))).each do |toy|
+    JSON.parse(Net::HTTP.get(URI('https://bad-dragon.com/api/inventory-toy/product-list'))).each do |toy|
       baddragon_skus[toy['sku']] = toy['name']
     end
 
@@ -18,7 +18,7 @@ module Bot::DiscordCommands
         page = 1
         @toys = []
         loop do
-          newtoys = JSON.parse(Net::HTTP.get(URI("https://staging.bad-dragon.com/api/inventory-toys?price[min]=0&price[max]=300&noAccessories=false&cumtube=false&suctionCup=false&sort[field]=price&&sort[direction]=asc&page=#{page}&limit=60")))
+          newtoys = JSON.parse(Net::HTTP.get(URI("https://bad-dragon.com/api/inventory-toys?price[min]=0&price[max]=300&noAccessories=false&cumtube=false&suctionCup=false&sort[field]=price&&sort[direction]=asc&page=#{page}&limit=60")))
           page += 1
           @toys.concat(newtoys['toys'])
           break if page > newtoys['totalPages']

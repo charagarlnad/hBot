@@ -6,5 +6,7 @@ addons:
   apt:
     packages:
       - libopencv-dev
+before_script:
+  - gem install rubocop
 script:
-  - bundle exec rubocop
+  - rubocop

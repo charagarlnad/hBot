@@ -1,18 +1,9 @@
 # Gems
 require 'yaml'
-
-require 'digest/md5'
-require 'digest/sha1'
-require 'digest/sha2'
-require 'discordrb'
-require 'rmagick'
-require 'opencv'
-require 'faker'
-require 'mediawiki-butt'
-require 'nokogiri'
-require 'filesize'
+Bundler.require
 
 # The main bot module.
+# Contains many of the variables and the actual Bot instance.
 module Bot
   # Get git status and check if bot is outdated.
   `git fetch`
