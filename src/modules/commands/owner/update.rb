@@ -6,7 +6,6 @@ module Bot::DiscordCommands
       event.respond "Please type the following passcode to update the bot: #{passcode}"
       event.user.await(:"exit#{event.user.id}") do |await_event|
         if await_event.message.content.to_i == passcode
-          Process.kill 'TERM', Bot.ytdl_host
           system('git pull')
           event.respond 'Bot is restarting to update.'
           puts "Update initiated by #{await_event.user.name}."

@@ -58,7 +58,7 @@ conn, addr = s.accept()
 print('# Connected')
 
 def send_message(message):
-    conn.send(bytes(message + '|||END|||', 'UTF-8'))
+    conn.send(bytes(json.dumps(message) + '|||END|||', 'UTF-8'))
 
 def start_search(index, line, videos):
     search_opts = copy.deepcopy(play_opts)
@@ -72,21 +72,17 @@ def start_search(index, line, videos):
 # Receive data from client
 while True:
     try:
-        data = conn.recv(8192)
-        line = data.decode('UTF-8').rstrip()
-        if line.startswith('play'):
-            line = line[len('play'):]
+        argument, line = conn.recv(8192).decode('UTF-8').rstrip().split('|',  1)
+        if argument == 'play':
             video = youtube_dl.YoutubeDL(play_opts).extract_info(line)
             if 'entries' in video:
                 video = video['entries'][0]
             video['filename'] = youtube_dl.YoutubeDL(play_opts).prepare_filename(video)
-            send_message(json.dumps(video))
-        elif line.startswith('download'):
-            line = line[len('download'):]
+            send_message(video)
+        elif argument == 'download':
             youtube_dl.YoutubeDL(download_opts).download([line])
-            send_message(json.dumps('downloaded'))
-        elif line.startswith('search'):
-            line = line[len('search'):]
+            send_message('downloaded')
+        elif argument == 'search':
             threads = []
             videos = []
             for num in range(1, 9): # does 1 (inclusive) to 9 (non-inclusive)
@@ -97,11 +93,17 @@ while True:
             for thread in threads:
                 thread.join()
 
-            send_message(json.dumps(videos))
-        elif line.startswith('kill'):
-            send_message(json.dumps('exiting'))
+            send_message(videos)
+        elif argument == 'kill':
+            send_message('exiting')
             break
+        else:
+            send_message('unknown')
     except:
-        send_message(json.dumps('error'))
+        try:
+            send_message('error')
+        except:
+            print('# Connection closed, exiting.')
+            raise SystemExit
 
 s.close()

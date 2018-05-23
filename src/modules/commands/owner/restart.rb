@@ -6,7 +6,6 @@ module Bot::DiscordCommands
       event.respond "Please type the following passcode to restart the bot: #{passcode}"
       event.user.await(:"exit#{event.user.id}") do |await_event|
         if await_event.message.content.to_i == passcode
-          Process.kill 'TERM', Bot.ytdl_host
           event.respond 'Bot is restarting.'
           puts "Restart initiated by #{await_event.user.name}."
           exec('bundle exec ruby run.rb')

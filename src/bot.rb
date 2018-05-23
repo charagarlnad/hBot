@@ -31,10 +31,9 @@ module Bot
   @dislike = '<:dislikes:434777663929057290>'.freeze
   @ruby = '<:ruby:436696214264741890>'.freeze
   @masterqueue = Hash.new { |h, k| h[k] = [] }
-  @ytdl_host = Process.spawn('python3 ytdl_host.py')
 
   class << self
-    [:messages, :embedtimeout, :normalcolor, :othercolor, :errorcolor, :leftarrow, :rightarrow, :checkmark, :trashcan, :like, :dislike, :ruby, :masterqueue, :ytdl_host, :local_commits, :remote_commits].each do |var|
+    [:messages, :embedtimeout, :normalcolor, :othercolor, :errorcolor, :leftarrow, :rightarrow, :checkmark, :trashcan, :like, :dislike, :ruby, :masterqueue, :local_commits, :remote_commits].each do |var|
       attr_accessor var
     end
   end
@@ -46,7 +45,6 @@ module Bot
   # Bot configuration
   unless File.file?('data/config.yaml')
     puts 'You didn\'t make a config file! Make the config file and start the bot again.'
-    Process.kill 'TERM', @ytdl_host
     exit!
   end
   CONFIG = (YAML.load_file 'data/config.yaml').symbolize_keys.freeze

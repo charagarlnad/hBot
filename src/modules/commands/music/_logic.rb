@@ -12,14 +12,14 @@ module Bot::DiscordCommands
       end
     end
 
-    # About a 1 to 1.5 second improvement over calling youtube-dl as a program every time.
+    Process.spawn('python3 ytdl_host.py')
     sleep(0.5)
     @socket = UNIXSocket.new('test.s')
     @request_lock = Mutex.new
 
     def self.request_vid(type, args)
       @request_lock.lock
-      @socket.puts("#{type}#{args}")
+      @socket.puts("#{type}|#{args}")
       response = ''
       response << @socket.recv(8192).chomp until response.end_with?('|||END|||')
       response.delete_suffix!('|||END|||')

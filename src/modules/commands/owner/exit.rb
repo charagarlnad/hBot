@@ -6,7 +6,6 @@ module Bot::DiscordCommands
       event.respond "Please type the following passcode to shutdown the bot: #{passcode}"
       event.user.await(:"exit#{event.user.id}") do |await_event|
         if await_event.message.content.to_i == passcode
-          Process.kill 'TERM', Bot.ytdl_host
           event.respond 'Bot is shutting down.'
           puts "Shutdown initiated by #{await_event.user.name}."
           exit!
