@@ -7,6 +7,7 @@ module Bot::DiscordCommands
       event.user.await(:"exit#{event.user.id}") do |await_event|
         if await_event.message.content.to_i == passcode
           system('git pull')
+          system('bundle install')
           event.respond 'Bot is restarting to update.'
           puts "Update initiated by #{await_event.user.name}."
           exec('bundle exec ruby run.rb')
