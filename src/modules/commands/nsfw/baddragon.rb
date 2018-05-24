@@ -9,11 +9,11 @@ module Bot::DiscordCommands
         end
       elsif request.first == 'amount' || request.first == 'count'
         event.send_embed do |embed|
-          embed.description = "Bad Dragon has #{bd_client.toys.count} premade toy#{bd_client.toys.count.to_i > 1 ? 's' : ''}."
+          embed.description = "Bad Dragon has #{bd_client.drops.count} premade toy#{bd_client.drops.count.to_i > 1 ? 's' : ''}."
         end
       elsif request.first == 'overview'
         toys = {}
-        bd_client.toys.each do |toy|
+        bd_client.drops.each do |toy|
           if toys[toy.name]
             toys[toy.name] += 1
           else
@@ -30,9 +30,9 @@ module Bot::DiscordCommands
       else
         toy =
           if request.first == 'random'
-            bd_client.toys.sample
+            bd_client.drops.sample
           else
-            bd_client.toys.select { |bdtoy| bdtoy.name.downcase.include?(request.join(' ').downcase) }.sample
+            bd_client.drops.select { |bdtoy| bdtoy.name.downcase.include?(request.join(' ').downcase) }.sample
           end
 
         if toy
