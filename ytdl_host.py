@@ -81,7 +81,7 @@ while True:
             send_message(video)
         elif argument == 'download':
             youtube_dl.YoutubeDL(download_opts).download([line])
-            send_message('downloaded')
+            send_message(True)
         elif argument == 'search':
             threads = []
             videos = []
@@ -101,7 +101,7 @@ while True:
             send_message('unknown')
     except:
         try:
-            send_message('error')
+            send_message(False)
         except:
             print('# Connection closed, exiting.')
             raise SystemExit
