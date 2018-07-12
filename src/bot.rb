@@ -1,5 +1,6 @@
 # Gems
 require 'yaml'
+require 'digest'
 Bundler.require
 
 # The main bot module.

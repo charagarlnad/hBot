@@ -1,6 +1,5 @@
 source 'https://rubygems.org'
 gem 'badass'
-gem 'digest'
 gem 'discordrb', git: 'https://github.com/meew0/discordrb.git'
 gem 'faker'
 gem 'filesize'
