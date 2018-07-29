@@ -1,7 +1,7 @@
 module Bot::DiscordCommands
   module Games
     extend Discordrb::Commands::CommandContainer
-    butt = MediaWiki::Butt.new('http://ftb.gamepedia.com/api.php', query_limit_default: 5000, use_continuation: true)
+    butt = MediaWiki::Butt.new('https://ftb.gamepedia.com/api.php', query_limit_default: 5000, use_continuation: true)
     embed = lambda do |searchresults, pagenum, event|
       search = searchresults[pagenum]
       stats = butt.get_statistics
