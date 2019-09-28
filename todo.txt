@@ -1,0 +1,4 @@
+- reduce reliance on monkey patching, it was a bad choice in the first place
+- more documentation
+- fully update to latest gems and fix any bugs
+- ERROR HANDLING

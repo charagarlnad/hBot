@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Discordrb::Commands
   class Command
     def initialize(name, attributes = {}, &block)
@@ -12,8 +14,11 @@ module Discordrb::Commands
         # Discord action permissions required to use this command
         required_permissions: attributes[:required_permissions] || [],
 
-        # Roles required to use this command
+        # Roles required to use this command (all? comparison)
         required_roles: attributes[:required_roles] || [],
+
+        # Roles allowed to use this command (any? comparison)
+        allowed_roles: attributes[:allowed_roles] || [],
 
         # Channels this command can be used on
         channels: attributes[:channels] || nil,
@@ -50,13 +55,16 @@ module Discordrb::Commands
         bucket: attributes[:bucket],
 
         # Block for handling internal exceptions, or a string to respond with
-        rescue: attributes[:rescue],
+        rescue: attributes[:rescue],    
+
+        # A list of aliases that reference this command
+        aliases: attributes[:aliases] || [],
 
         ### start additon
         requirements: attributes[:requirements] || [],
         type: attributes[:type] || :Unsorted
         ### end additon
-
+   
       }
 
       @block = block
@@ -65,13 +73,15 @@ module Discordrb::Commands
     # https://github.com/meew0/discordrb/blob/master/lib/discordrb/commands/parser.rb#L76
     def call(event, arguments, chained = false, check_permissions = true)
       if arguments.length < @attributes[:min_args]
-        event.respond "Too few arguments for command `#{name}`!"
-        event.respond "Usage: `#{@attributes[:usage]}`" if @attributes[:usage]
+        response = "Too few arguments for command `#{name}`!"
+        response += "\nUsage: `#{@attributes[:usage]}`" if @attributes[:usage]
+        event.respond(response)
         return
       end
       if @attributes[:max_args] >= 0 && arguments.length > @attributes[:max_args]
-        event.respond "Too many arguments for command `#{name}`!"
-        event.respond "Usage: `#{@attributes[:usage]}`" if @attributes[:usage]
+        response = "Too many arguments for command `#{name}`!"
+        response += "\nUsage: `#{@attributes[:usage]}`" if @attributes[:usage]
+        event.respond(response)
         return
       end
       ### begin additon
@@ -105,27 +115,25 @@ module Discordrb::Commands
       if check_permissions
         rate_limited = event.bot.rate_limited?(@attributes[:bucket], event.author)
         if @attributes[:bucket] && rate_limited
-          if @attributes[:rate_limit_message]
-            event.respond @attributes[:rate_limit_message].gsub('%time%', rate_limited.round(2).to_s)
-          end
+          event.respond @attributes[:rate_limit_message].gsub('%time%', rate_limited.round(2).to_s) if @attributes[:rate_limit_message]
           return
         end
       end
 
       result = @block.call(event, *arguments)
       event.drain_into(result)
-    rescue LocalJumpError => ex # occurs when breaking
-      result = ex.exit_value
+    rescue LocalJumpError => e # occurs when breaking
+      result = e.exit_value
       event.drain_into(result)
-    rescue => exception # Something went wrong inside our @block!
+    rescue StandardError => e # Something went wrong inside our @block!
       rescue_value = @attributes[:rescue] || event.bot.attributes[:rescue]
       if rescue_value
-        event.respond(rescue_value.gsub('%exception%', exception.message)) if rescue_value.is_a?(String)
-        rescue_value.call(event, exception) if rescue_value.respond_to?(:call)
+        event.respond(rescue_value.gsub('%exception%', e.message)) if rescue_value.is_a?(String)
+        rescue_value.call(event, e) if rescue_value.respond_to?(:call)
       end
       # Sends the exception directly instead of raising it.
       if Bot::HBOT.user(Bot::HBOT.profile.id).on(event.server).permission?(:send_messages, event.channel)
-        event.respond exception
+        event.respond e
       end
     end
   end
