@@ -13,7 +13,7 @@ module Bot::DiscordCommands
         embed.title = 'User Info'
         embed.add_field(name: 'Name#Discrim', value: "#{user.name}\##{user.discrim}", inline: true)
         embed.add_field(name: 'Status', value: user.status, inline: true)
-        embed.add_field(name: 'Currently Playing', value: user.game ? user.game : 'N/A', inline: true)
+        embed.add_field(name: 'Currently Playing', value: user.game || 'N/A', inline: true)
         embed.add_field(name: 'Created at', value: "#{user.creation_time.getutc.asctime} UTC", inline: true)
         embed.add_field(name: 'Joined server at', value: "#{user.joined_at.getutc.asctime} UTC", inline: true)
         embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(url: user.avatar_url)
